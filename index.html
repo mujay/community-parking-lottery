@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社區停車位抽籤系統</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚗 社區停車位抽籤系統</h1>
+            <p>總停車位數：322格 (A區：1-210，B區：211-322)</p>
+        </header>
+
+        <main>
+            <!-- 控制面板 -->
+            <section class="control-panel">
+                <h2>抽籤設定</h2>
+                
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="separate-zones" checked> 分區抽籤
+                    </label>
+                    <small>勾選後將A區和B區分別進行抽籤</small>
+                </div>
+
+                <div class="zone-settings">
+                    <div class="zone-setting">
+                        <h3>A區設定 (1-210)</h3>
+                        
+                        <!-- 已加入的抽籤號碼範圍顯示 -->
+                        <div class="added-ranges">
+                            <label>已加入的抽籤號碼範圍：</label>
+                            <div id="a-zone-ranges-display" class="ranges-display">
+                                <span class="no-ranges">尚未加入任何範圍</span>
+                            </div>
+                            <div class="range-count" id="a-zone-count">總數量：0</div>
+                        </div>
+                        
+                        <!-- 新增抽籤號碼範圍 -->
+                        <div class="input-group range-input">
+                            <label>新增抽籤號碼範圍：</label>
+                            <div class="range-controls">
+                                <span class="prefix-display">A</span>
+                                <input type="text" id="a-zone-start" placeholder="1" maxlength="3"
+                                       title="輸入起始數字部分 (1-999)">
+                                <span class="range-separator">至</span>
+                                <span class="prefix-display">A</span>
+                                <input type="text" id="a-zone-end" placeholder="50" maxlength="3"
+                                       title="輸入結束數字部分 (1-999)">
+                                <button type="button" id="add-a-range" class="btn-add">加入</button>
+                                <button type="button" id="clear-a-ranges" class="btn-clear">清空</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 不參與的停車位管理 -->
+                        <div class="exclude-management">
+                            <label>A區不參與的停車位：</label>
+                            <div id="a-zone-exclude-display" class="exclude-display">
+                                <span class="exclude-tag">191</span>
+                                <span class="exclude-tag">192</span>
+                                <span class="exclude-tag">193</span>
+                                <span class="exclude-tag">194</span>
+                                <span class="exclude-tag">195</span>
+                            </div>
+                            <div class="exclude-controls">
+                                <input type="text" id="a-zone-exclude-input" placeholder="輸入停車位號碼或範圍 (例：10 或 25-30)">
+                                <button type="button" id="add-a-exclude" class="btn-add-small">加入</button>
+                                <button type="button" id="clear-a-exclude" class="btn-clear-small">重置為預設</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="zone-setting">
+                        <h3>B區設定 (211-322)</h3>
+                        
+                        <!-- 已加入的抽籤號碼範圍顯示 -->
+                        <div class="added-ranges">
+                            <label>已加入的抽籤號碼範圍：</label>
+                            <div id="b-zone-ranges-display" class="ranges-display">
+                                <span class="no-ranges">尚未加入任何範圍</span>
+                            </div>
+                            <div class="range-count" id="b-zone-count">總數量：0</div>
+                        </div>
+                        
+                        <!-- 新增抽籤號碼範圍 -->
+                        <div class="input-group range-input">
+                            <label>新增抽籤號碼範圍：</label>
+                            <div class="range-controls">
+                                <span class="prefix-display">B</span>
+                                <input type="text" id="b-zone-start" placeholder="1" maxlength="3"
+                                       title="輸入起始數字部分 (1-999)">
+                                <span class="range-separator">至</span>
+                                <span class="prefix-display">B</span>
+                                <input type="text" id="b-zone-end" placeholder="30" maxlength="3"
+                                       title="輸入結束數字部分 (1-999)">
+                                <button type="button" id="add-b-range" class="btn-add">加入</button>
+                                <button type="button" id="clear-b-ranges" class="btn-clear">清空</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 不參與的停車位管理 -->
+                        <div class="exclude-management">
+                            <label>B區不參與的停車位：</label>
+                            <div id="b-zone-exclude-display" class="exclude-display">
+                                <span class="no-excludes">目前無排除的停車位</span>
+                            </div>
+                            <div class="exclude-controls">
+                                <input type="text" id="b-zone-exclude-input" placeholder="輸入停車位號碼或範圍 (例：215 或 220-225)">
+                                <button type="button" id="add-b-exclude" class="btn-add-small">加入</button>
+                                <button type="button" id="clear-b-exclude" class="btn-clear-small">清空</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="unified-settings" style="display: none;">
+                    <div class="zone-setting">
+                        <h3>整體設定 (A區+B區)</h3>
+                        
+                        <!-- 已加入的抽籤號碼範圍顯示 -->
+                        <div class="added-ranges">
+                            <label>已加入的抽籤號碼範圍：</label>
+                            <div id="unified-ranges-display" class="ranges-display">
+                                <span class="no-ranges">尚未加入任何範圍</span>
+                            </div>
+                            <div class="range-count" id="unified-count">總數量：0</div>
+                        </div>
+                        
+                        <!-- 新增抽籤號碼範圍 -->
+                        <div class="input-group range-input">
+                            <label>新增抽籤號碼範圍：</label>
+                            <div class="range-controls">
+                                <input type="text" id="unified-start" placeholder="1" maxlength="3"
+                                       title="輸入起始數字部分 (1-999)">
+                                <span class="range-separator">至</span>
+                                <input type="text" id="unified-end" placeholder="50" maxlength="3"
+                                       title="輸入結束數字部分 (1-999)">
+                                <button type="button" id="add-unified-range" class="btn-add">加入</button>
+                                <button type="button" id="clear-unified-ranges" class="btn-clear">清空</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 不參與的停車位管理 -->
+                        <div class="exclude-management">
+                            <label>不參與的停車位：</label>
+                            <div id="unified-exclude-display" class="exclude-display">
+                                <span class="exclude-tag">191</span>
+                                <span class="exclude-tag">192</span>
+                                <span class="exclude-tag">193</span>
+                                <span class="exclude-tag">194</span>
+                                <span class="exclude-tag">195</span>
+                            </div>
+                            <div class="exclude-controls">
+                                <input type="text" id="unified-exclude-input" placeholder="輸入停車位號碼或範圍 (例：10 或 25-30)">
+                                <button type="button" id="add-unified-exclude" class="btn-add-small">加入</button>
+                                <button type="button" id="clear-unified-exclude" class="btn-clear-small">重置為預設</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <button id="start-lottery" class="btn-primary">開始抽籤</button>
+                <button id="reset-lottery" class="btn-secondary">重置</button>
+            </section>
+
+            <!-- 結果顯示 -->
+            <section class="results-section">
+                <h2>抽籤結果</h2>
+                <div id="results-container">
+                    <div class="no-results">尚未進行抽籤</div>
+                </div>
+            </section>
+
+            <!-- 歷史記錄 -->
+            <section class="history-section">
+                <h2>歷史記錄</h2>
+                <button id="clear-history" class="btn-secondary">清除記錄</button>
+                <div id="history-container">
+                    <div class="no-history">暫無歷史記錄</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
