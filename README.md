@@ -288,7 +288,14 @@ A003,78
 -   自訂佈景主題
 -   批次匯入功能
 
-## 📄 授權資訊
+## � 相關連結
+
+-   **[🌐 線上展示](https://mujay.github.io/community-parking-lottery/)** - 立即體驗完整功能
+-   **[📁 GitHub 儲存庫](https://github.com/mujay/community-parking-lottery)** - 原始程式碼與文件
+-   **[🐛 問題回報](https://github.com/mujay/community-parking-lottery/issues)** - 回報錯誤或問題
+-   **[💡 功能建議](https://github.com/mujay/community-parking-lottery/discussions)** - 分享想法和建議
+
+## �📄 授權資訊
 
 本專案採用 MIT 授權條款，您可以自由：
 
