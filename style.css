@@ -288,6 +288,22 @@ section h2 {
     gap: 18px;
 }
 
+/* 分區抽籤時，在較大螢幕上左右並列顯示 */
+@media (min-width: 768px) {
+    .zone-results {
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+}
+
+/* 在較小螢幕上維持垂直排列 */
+@media (max-width: 767px) {
+    .zone-results {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+}
+
 .zone-result {
     background: linear-gradient(135deg, #faf8f5 0%, #f5f2ee 100%);
     padding: 18px;
@@ -387,16 +403,6 @@ section h2 {
 
 .lottery-table tbody tr:nth-child(even):hover {
     background: rgba(245, 242, 237, 0.8);
-}
-
-/* 順序號樣式 */
-.order-number {
-    font-weight: 500;
-    color: #b8a898;
-    background: linear-gradient(135deg, #f5f2ee 0%, #f0ebe5 100%);
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 13px;
 }
 
 /* 停車位號樣式 */
@@ -725,6 +731,69 @@ section h2 {
     .copy-csv-btn, .copy-numbers-btn {
         font-size: 11px;
         padding: 4px 8px;
+    }
+}
+
+/* 響應式表格調整 */
+@media (min-width: 768px) {
+    .zone-result .lottery-table th,
+    .zone-result .lottery-table td {
+        padding: 12px 8px;
+        font-size: 14px;
+    }
+    
+    .zone-result .lottery-table th {
+        font-size: 14px;
+    }
+    
+    .zone-result .lottery-table td {
+        font-size: 15px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .zone-result .lottery-table th,
+    .zone-result .lottery-table td {
+        padding: 14px 12px;
+        font-size: 15px;
+    }
+    
+    .zone-result .lottery-table th {
+        font-size: 15px;
+    }
+    
+    .zone-result .lottery-table td {
+        font-size: 16px;
+    }
+}
+
+/* 並列顯示時按鈕調整 */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .zone-result .copy-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .zone-result .copy-csv-btn, 
+    .zone-result .copy-numbers-btn {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+}
+
+@media (min-width: 768px) {
+    .zone-result h4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .zone-result h4 {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
     }
 }
 

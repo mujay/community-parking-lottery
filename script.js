@@ -477,7 +477,7 @@ class ParkingLotterySystem {
                                         .map(
                                             (pair, index) => `
                                         <tr>
-                                            <td class="order-number">${pair.lotteryNumber}</td>
+                                            <td>${pair.lotteryNumber}</td>
                                             <td class="parking-number">${pair.parkingSpot}</td>
                                         </tr>
                                     `
@@ -538,7 +538,6 @@ class ParkingLotterySystem {
                     <table class="lottery-table">
                         <thead>
                             <tr>
-                                <th>順序</th>
                                 <th>抽籤號碼</th>
                                 <th>停車位</th>
                             </tr>
@@ -548,11 +547,8 @@ class ParkingLotterySystem {
                                 .map(
                                     (result, index) => `
                                 <tr>
-                                    <td class="order-number">${index + 1}</td>
                                     <td>${result.lotteryNumber}</td>
-                                    <td class="parking-number">${
-                                        result.parkingSpot
-                                    }</td>
+                                    <td class="parking-number">${result.parkingSpot}</td>
                                 </tr>
                             `
                                 )
