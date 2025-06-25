@@ -19,9 +19,171 @@ class ParkingLotterySystem {
             ...defaultAZoneExcludes,
             ...defaultBZoneExcludes,
         ]; // 預設身障車格 + 充電機車位
+
+        // 主題和語言系統
+        this.currentTheme = localStorage.getItem('theme') || 'japanese';
+        this.currentLanguage = localStorage.getItem('language') || 'zh';
+        this.translations = this.initializeTranslations();
+
+        this.initializeThemeAndLanguage();
         this.initializeEventListeners();
         this.initializeExcludeDisplays();
         this.loadHistory();
+    }
+
+    // 初始化翻譯內容
+    initializeTranslations() {
+        return {
+            zh: {
+                title: '🚗 社區停車位抽籤系統',
+                subtitle: '總停車位數：322格 (A區：1-210，B區：211-322)',
+                'lottery-settings': '抽籤設定',
+                'separate-zones': '分區抽籤',
+                'separate-zones-desc': '勾選後將A區和B區分別進行抽籤',
+                'start-lottery': '開始抽籤',
+                'reset-lottery': '重置',
+                'clear-history': '清除記錄',
+                'a-zone-setting': 'A區設定 (1-210)',
+                'b-zone-setting': 'B區設定 (211-322)',
+                'unified-setting': '整體設定 (1-322)',
+                'lottery-numbers': '🎫 抽籤號碼設定',
+                'parking-spots': '🚗 車位設定',
+                'added-ranges': '已加入的抽籤號碼範圍：',
+                'add-range': '新增抽籤號碼範圍：',
+                to: '至',
+                add: '加入',
+                clear: '清空',
+                reset: '重置',
+                'no-ranges': '尚未加入任何範圍',
+                'lottery-count': '抽籤號碼總數：',
+                'total-spots': '總車位數：',
+                'excluded-spots': '排除車位：',
+                'available-spots': '可用車位：',
+                'exclude-label': 'A區排除的停車位號碼：',
+                'exclude-input-placeholder':
+                    '輸入停車位號碼或範圍 (例：10 或 25-30)',
+                'add-exclude': '加入',
+                'reset-exclude': '重置為預設',
+                'lottery-summary': '📊 本次抽籤摘要',
+                'total-lottery-numbers': '抽籤號碼總數：',
+                'total-available-spots': '可用車位總數：',
+                'a-zone-label': 'A區：',
+                'b-zone-label': 'B區：',
+                'lottery-numbers-short': '抽籤號碼',
+                'available-spots-short': '可用車位',
+                units: '個',
+                'lottery-results': '抽籤結果',
+                'lottery-history': '歷史記錄',
+                'no-results': '尚未進行抽籤',
+                'no-history': '暫無歷史記錄',
+            },
+            en: {
+                title: '🚗 Community Parking Lottery System',
+                subtitle: 'Total Spaces: 322 (Zone A: 1-210, Zone B: 211-322)',
+                'lottery-settings': 'Lottery Settings',
+                'separate-zones': 'Separate Zones',
+                'separate-zones-desc':
+                    'Check to conduct separate lotteries for Zone A and Zone B',
+                'start-lottery': 'Start Lottery',
+                'reset-lottery': 'Reset',
+                'clear-history': 'Clear History',
+                'a-zone-setting': 'Zone A Settings (1-210)',
+                'b-zone-setting': 'Zone B Settings (211-322)',
+                'unified-setting': 'Unified Settings (1-322)',
+                'lottery-numbers': '🎫 Lottery Numbers',
+                'parking-spots': '🚗 Parking Spots',
+                'added-ranges': 'Added Lottery Number Ranges:',
+                'add-range': 'Add Lottery Number Range:',
+                to: 'to',
+                add: 'Add',
+                clear: 'Clear',
+                reset: 'Reset',
+                'no-ranges': 'No ranges added yet',
+                'lottery-count': 'Total Numbers: ',
+                'total-spots': 'Total Spots: ',
+                'excluded-spots': 'Excluded: ',
+                'available-spots': 'Available: ',
+                'exclude-label': 'Zone A Excluded Parking Numbers:',
+                'exclude-input-placeholder':
+                    'Enter parking numbers or range (e.g.: 10 or 25-30)',
+                'add-exclude': 'Add',
+                'reset-exclude': 'Reset to Default',
+                'lottery-summary': '📊 Lottery Summary',
+                'total-lottery-numbers': 'Total Lottery Numbers:',
+                'total-available-spots': 'Total Available Spots:',
+                'a-zone-label': 'Zone A:',
+                'b-zone-label': 'Zone B:',
+                'lottery-numbers-short': 'Numbers',
+                'available-spots-short': 'Spots',
+                units: '',
+                'lottery-results': 'Lottery Results',
+                'lottery-history': 'Lottery History',
+                'no-results': 'No lottery conducted yet',
+                'no-history': 'No history records',
+            },
+        };
+    }
+
+    // 初始化主題和語言
+    initializeThemeAndLanguage() {
+        // 設定主題
+        document.body.className =
+            this.currentTheme === 'github' ? 'github-style' : '';
+        document.getElementById('style-selector').value = this.currentTheme;
+
+        // 設定語言
+        document.getElementById('language-selector').value =
+            this.currentLanguage;
+        this.updateLanguage();
+
+        // 添加主題和語言切換事件監聽器
+        document
+            .getElementById('style-selector')
+            .addEventListener('change', (e) => {
+                this.switchTheme(e.target.value);
+            });
+
+        document
+            .getElementById('language-selector')
+            .addEventListener('change', (e) => {
+                this.switchLanguage(e.target.value);
+            });
+    }
+
+    // 切換主題
+    switchTheme(theme) {
+        this.currentTheme = theme;
+        localStorage.setItem('theme', theme);
+
+        if (theme === 'github') {
+            document.body.className = 'github-style';
+        } else {
+            document.body.className = '';
+        }
+    }
+
+    // 切換語言
+    switchLanguage(language) {
+        this.currentLanguage = language;
+        localStorage.setItem('language', language);
+        this.updateLanguage();
+    }
+
+    // 更新頁面語言
+    updateLanguage() {
+        const elements = document.querySelectorAll('[data-i18n]');
+        elements.forEach((element) => {
+            const key = element.getAttribute('data-i18n');
+            if (this.translations[this.currentLanguage][key]) {
+                element.textContent =
+                    this.translations[this.currentLanguage][key];
+            }
+        });
+
+        // 更新頁面標題和 HTML lang 屬性
+        document.title = this.translations[this.currentLanguage].title;
+        document.documentElement.lang =
+            this.currentLanguage === 'zh' ? 'zh-TW' : 'en';
     }
 
     // 初始化事件監聽器
