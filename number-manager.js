@@ -56,7 +56,7 @@ class NumberManager {
     addNumbersToArray(newNumbers) {
         // 檢查重複
         const existingNumbers = new Set(this.numbers);
-        const duplicates = newNumbers.filter(num => existingNumbers.has(num));
+        const duplicates = newNumbers.filter((num) => existingNumbers.has(num));
 
         if (duplicates.length > 0) {
             alert(`${this.numberType} ${duplicates.join(', ')} 已存在`);
@@ -91,6 +91,46 @@ class NumberManager {
         }
 
         return this.addNumbersToArray([num]);
+    }
+
+    // 批次新增數字 - 支援逗號分隔格式
+    addBatch(batchStr) {
+        if (!batchStr || batchStr.trim() === '') {
+            alert('請輸入數字');
+            return false;
+        }
+
+        const newNumbers = [];
+        const parts = batchStr.split(',');
+
+        for (const part of parts) {
+            const trimmed = part.trim();
+
+            // 檢查是否為範圍格式 (如: 1-5)
+            if (trimmed.includes('-')) {
+                const [start, end] = trimmed.split('-').map((s) => s.trim());
+                const startNum = parseInt(start);
+                const endNum = parseInt(end);
+
+                if (!this.validateNumberRange(startNum, endNum)) {
+                    return false;
+                }
+
+                // 加入範圍內的所有數字
+                for (let i = startNum; i <= endNum; i++) {
+                    newNumbers.push(i);
+                }
+            } else {
+                // 單一數字
+                const num = parseInt(trimmed);
+                if (!this.validateSingleNumber(num)) {
+                    return false;
+                }
+                newNumbers.push(num);
+            }
+        }
+
+        return this.addNumbersToArray(newNumbers);
     }
 
     // 移除特定數字
@@ -138,29 +178,38 @@ class NumberManager {
             displayElement.innerHTML = `<span class="no-numbers">尚未加入任何${this.numberType}</span>`;
         } else {
             const tagsHtml = this.numbers
-                .map(number => this.createNumberTag(number))
+                .map((number) => this.createNumberTag(number))
                 .join('');
             displayElement.innerHTML = tagsHtml;
         }
 
         // 更新統計
-        const countText = this.numberType === '排除車位' ? 
-            `排除車位總數：${this.numbers.length}` : 
-            `${this.numberType}總數：${this.numbers.length}`;
+        const countText =
+            this.numberType === '排除車位'
+                ? `排除車位總數：${this.numbers.length}`
+                : `${this.numberType}總數：${this.numbers.length}`;
         countElement.textContent = countText;
     }
 
     // 建立數字標籤
     createNumberTag(number) {
         const isExcluded = this.numberType === '排除車位';
-        const tagClass = isExcluded ? 'exclude-tag' : 
-                        this.checkIfExcluded && this.checkIfExcluded(number) ? 'number-tag excluded-parking' : 'number-tag';
-        
-        const removeFunction = isExcluded ? 'removeExcludeNumber' : 
-                              this.numberType === '抽籤號碼' ? 'removeLotteryNumber' : 'removeParkingNumber';
+        const tagClass = isExcluded
+            ? 'exclude-tag'
+            : this.checkIfExcluded && this.checkIfExcluded(number)
+            ? 'number-tag excluded-parking'
+            : 'number-tag';
 
-        const excludeIndicator = this.checkIfExcluded && this.checkIfExcluded(number) ? 
-            '<span class="excluded-indicator">🚫</span>' : '';
+        const removeFunction = isExcluded
+            ? 'removeExcludeNumber'
+            : this.numberType === '抽籤號碼'
+            ? 'removeLotteryNumber'
+            : 'removeParkingNumber';
+
+        const excludeIndicator =
+            this.checkIfExcluded && this.checkIfExcluded(number)
+                ? '<span class="excluded-indicator">🚫</span>'
+                : '';
 
         return `<span class="${tagClass}">
             ${number}${excludeIndicator}

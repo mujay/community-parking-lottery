@@ -131,9 +131,6 @@ class ParkingLotterySystem {
             .getElementById('add-exclude-single')
             .addEventListener('click', () => this.addExcludeSingle());
         document
-            .getElementById('add-exclude-batch')
-            .addEventListener('click', () => this.addExcludeBatch());
-        document
             .getElementById('reset-exclude-numbers')
             .addEventListener('click', () => this.resetExcludeNumbers());
 
@@ -178,10 +175,6 @@ class ParkingLotterySystem {
             {
                 ids: ['exclude-single-number'],
                 action: () => this.addExcludeSingle(),
-            },
-            {
-                ids: ['exclude-batch-input'],
-                action: () => this.addExcludeBatch(),
             },
         ];
 
@@ -328,19 +321,6 @@ class ParkingLotterySystem {
         const num = parseInt(input.value);
 
         if (this.excludeManager.addSingle(num)) {
-            input.value = '';
-            input.focus();
-            this.updateParkingSummary();
-            this.updateLotterySummary();
-            this.parkingManager.updateDisplay();
-        }
-    }
-
-    addExcludeBatch() {
-        const input = document.getElementById('exclude-batch-input');
-        const batchStr = input.value.trim();
-
-        if (this.excludeManager.addBatch(batchStr)) {
             input.value = '';
             input.focus();
             this.updateParkingSummary();

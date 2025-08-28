@@ -1273,7 +1273,7 @@ section h2 {
     margin: var(--spacing-lg) 0;
 }
 
-.range-controls, .single-controls {
+.range-controls, .single-controls, .batch-controls {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
@@ -1281,7 +1281,8 @@ section h2 {
 }
 
 .range-controls input[type="number"],
-.single-controls input[type="number"] {
+.single-controls input[type="number"],
+.batch-controls input[type="text"] {
     flex: 1;
     min-width: 80px;
     padding: var(--spacing-sm) var(--spacing-md);
@@ -1292,8 +1293,14 @@ section h2 {
     transition: all 0.3s ease;
 }
 
+.batch-controls input[type="text"] {
+    min-width: 200px;
+    font-family: 'Courier New', monospace;
+}
+
 .range-controls input[type="number"]:focus,
-.single-controls input[type="number"]:focus {
+.single-controls input[type="number"]:focus,
+.batch-controls input[type="text"]:focus {
     outline: none;
     border-color: var(--text-secondary);
     background: var(--card-bg);
@@ -1304,6 +1311,13 @@ section h2 {
     color: var(--text-tertiary);
     font-weight: 500;
     white-space: nowrap;
+}
+
+.input-hint {
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    font-style: italic;
 }
 
 /* 按鈕樣式 */

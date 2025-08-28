@@ -1,7 +1,7 @@
 // 多語言翻譯模組
 const Translations = {
     zh: {
-        title: '🚗 社區停車位抽籤系統',
+        title: '🚗 停車位抽籤系統',
         'lottery-settings': '抽籤設定',
         'start-lottery': '開始抽籤',
         'reset-lottery': '重置',
@@ -36,7 +36,7 @@ const Translations = {
         'no-history': '暫無歷史記錄',
     },
     en: {
-        title: '🚗 Community Parking Lottery System',
+        title: '🚗 Parking Lottery System',
         'lottery-settings': 'Lottery Settings',
         'start-lottery': 'Start Lottery',
         'reset-lottery': 'Reset',
@@ -69,5 +69,5 @@ const Translations = {
         'lottery-history': 'Lottery History',
         'no-results': 'No lottery conducted yet',
         'no-history': 'No history records',
-    }
+    },
 };
