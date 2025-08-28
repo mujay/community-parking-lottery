@@ -216,6 +216,39 @@
         gap: var(--spacing-xs);
         text-align: center;
     }
+    
+    .settings-container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .setting-group {
+        padding: var(--spacing-lg);
+    }
+    
+    .exclude-management {
+        margin-top: var(--spacing-lg);
+    }
+}
+
+/* 超小螢幕優化 */
+@media (max-width: 480px) {
+    .settings-container {
+        gap: var(--spacing-md);
+    }
+    
+    .setting-group {
+        padding: var(--spacing-md);
+    }
+    
+    .range-controls {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .range-controls button {
+        width: 100%;
+    }
 }
 
 body {
@@ -319,6 +352,18 @@ section h2 {
 
 .setting-group {
     margin-bottom: 18px;
+    padding: var(--spacing-xl);
+    background: var(--card-bg);
+    border-radius: var(--radius-large);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 12px var(--shadow-light);
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.setting-group:hover {
+    box-shadow: 0 4px 20px var(--shadow-medium);
+    transform: translateY(-1px);
 }
 
 .setting-group label {
@@ -463,8 +508,7 @@ section h2 {
 }
 
 .results-container {
-    max-height: 500px;
-    overflow-y: auto;
+    max-height: none; /* 移除高度限制，改用分頁 */
 }
 
 .round-result {
@@ -483,6 +527,198 @@ section h2 {
     font-size: 1.4rem;
     font-weight: 600;
     letter-spacing: 0.3px;
+}
+
+/* 資訊網格佈局 */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: var(--spacing-sm);
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-small);
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-tertiary);
+    font-size: var(--font-size-sm);
+}
+
+.info-value {
+    font-weight: 500;
+    color: var(--text-secondary);
+    word-break: break-all;
+}
+
+.note-section {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: rgba(255, 240, 220, 0.8);
+    border-radius: var(--radius-medium);
+    border-left: 4px solid #d88a8a;
+}
+
+.note-section .note {
+    color: var(--text-danger);
+    font-size: var(--font-size-base);
+}
+
+/* 表格容器 */
+.results-table-container {
+    margin-top: var(--spacing-lg);
+}
+
+.table-header h4 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.table-wrapper {
+    max-height: 600px;
+    overflow-y: auto;
+    border-radius: var(--radius-medium);
+    box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+/* 結果表格樣式優化 */
+.lottery-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--section-bg);
+    border-radius: var(--radius-medium);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.lottery-table th,
+.lottery-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.lottery-table th {
+    background: var(--header-bg);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.lottery-table td {
+    font-size: var(--font-size-base);
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.lottery-table tbody tr:hover {
+    background: var(--card-bg);
+}
+
+.lottery-table tbody tr:nth-child(even) {
+    background: rgba(245, 240, 235, 0.3);
+}
+
+.lottery-table tbody tr:nth-child(even):hover {
+    background: var(--card-bg);
+}
+
+/* 表格欄位樣式 */
+.serial-number {
+    width: 80px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+}
+
+.lottery-number {
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: linear-gradient(135deg, #e8ddd4 0%, #d6c7b8 100%);
+    border-radius: var(--radius-small);
+}
+
+.parking-number {
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 1.05em;
+    background: linear-gradient(135deg, #d4e8d4 0%, #c4d8c4 100%);
+    border-radius: var(--radius-small);
+}
+
+/* 分頁控制 */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-medium);
+    border: 1px solid var(--border-light);
+}
+
+.pagination-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--button-primary);
+    color: var(--text-primary-button);
+    border: none;
+    border-radius: var(--radius-medium);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--button-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+}
+
+.pagination-btn:disabled {
+    background: var(--border-color);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.pagination-info {
+    text-align: center;
+    flex: 1;
+    margin: 0 var(--spacing-md);
+}
+
+.pagination-info span {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.pagination-info span:first-child {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.total-info {
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
 }
 
 .round-info {
@@ -571,61 +807,6 @@ section h2 {
     background: var(--button-secondary-hover);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-/* 結果表格樣式 */
-.lottery-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: var(--spacing-md);
-    background: var(--section-bg);
-    border-radius: var(--radius-medium);
-    overflow: hidden;
-    box-shadow: 0 4px 20px var(--shadow-light);
-    border: 1px solid var(--border-color);
-}
-
-.lottery-table th,
-.lottery-table td {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.lottery-table th {
-    background: var(--header-bg);
-    color: var(--text-secondary);
-    font-weight: 600;
-    font-size: 15px;
-    letter-spacing: 0.5px;
-}
-
-.lottery-table td {
-    font-size: var(--font-size-base);
-    color: var(--text-primary);
-    font-weight: 500;
-}
-
-.lottery-table tbody tr:hover {
-    background: var(--card-bg);
-}
-
-.lottery-table tbody tr:nth-child(even) {
-    background: var(--card-secondary, var(--card-bg));
-}
-
-.lottery-table tbody tr:nth-child(even):hover {
-    background: var(--card-bg);
-}
-
-/* 停車位號樣式 */
-.parking-number {
-    font-weight: 700;
-    color: var(--text-secondary);
-    font-size: 1.1em;
-    background: var(--card-bg);
-    padding: 4px 10px;
-    border-radius: var(--spacing-sm);
 }
 
 /* 歷史記錄區域 */
@@ -858,11 +1039,11 @@ section h2 {
 /* 響應式設計 */
 @media (max-width: 768px) {
     .container {
-        padding: 10px;
+        padding: var(--spacing-lg);
     }
     
     header h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     
     header p {
@@ -890,6 +1071,32 @@ section h2 {
     .lottery-table th,
     .lottery-table td {
         padding: var(--spacing-sm);
+    }
+
+    /* 分頁控制響應式 */
+    .pagination {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        text-align: center;
+    }
+
+    .pagination-info {
+        margin: 0;
+        order: -1;
+    }
+
+    .table-header h4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table-wrapper {
+        max-height: 400px;
     }
     
     .zone-breakdown {
@@ -1010,657 +1217,335 @@ section h2 {
     }
 }
 
-/* 動畫效果 */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(var(--spacing-xl));
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* 左右並排設定容器 */
+.settings-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xxl);
+    margin: var(--spacing-xl) 0;
+    align-items: start;
 }
 
-.round-result {
-    animation: fadeIn 0.5s ease-out;
-}
-
-/* 捲軸樣式 */
-.results-container::-webkit-scrollbar,
-.history-container::-webkit-scrollbar {
-    width: var(--spacing-sm);
-}
-
-.results-container::-webkit-scrollbar-track,
-.history-container::-webkit-scrollbar-track {
-    background: var(--scrollbar-track, #f1f1f1);
-    border-radius: 4px;
-}
-
-.results-container::-webkit-scrollbar-thumb,
-.history-container::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb, #c1c1c1);
-    border-radius: 4px;
-}
-
-.results-container::-webkit-scrollbar-thumb:hover,
-.history-container::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover, #a8a8a8);
-}
-
-/* 範圍控制樣式 */
-.added-ranges {
-    margin-bottom: 15px;
-}
-
-.ranges-display {
-    min-height: 40px;
-    padding: 10px;
-    border: 2px dashed var(--border-color);
-    border-radius: var(--spacing-xs);
-    background-color: var(--card-bg);
-    margin-top: var(--spacing-xs);
-}
-
-.ranges-display .no-ranges {
-    color: var(--text-tertiary);
-    font-style: italic;
-}
-
-.range-tag {
-    display: inline-block;
-    background: var(--button-secondary);
-    color: var(--text-secondary);
-    padding: 6px var(--spacing-md);
-    margin: 4px;
-    border-radius: var(--radius-xlarge);
-    font-size: var(--spacing-md);
-    font-weight: 400;
-    box-shadow: 0 2px 8px var(--shadow-light);
-}
-
-.range-tag .remove-range {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.3);
-    border: none;
-    color: white;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    font-size: 12px;
-    cursor: pointer;
+/* 分頁標籤樣式 */
+.input-method-tabs {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--radius-medium);
+    background: var(--border-light);
+    padding: 4px;
 }
 
-.range-tag .remove-range:hover {
+.tab-btn {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-small);
+    font-weight: 500;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: var(--font-size-sm);
+}
+
+.tab-btn.active {
+    background: var(--section-bg);
+    color: var(--text-secondary);
+    box-shadow: 0 2px 4px var(--shadow-light);
+}
+
+.tab-btn:hover:not(.active) {
+    color: var(--text-secondary);
     background: rgba(255, 255, 255, 0.5);
 }
 
-.range-input .range-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+/* 分頁內容樣式 */
+.tab-content {
+    display: none;
 }
 
-.range-controls input[type="text"] {
-    flex: 1;
-    min-width: 120px;
+.tab-content.active {
+    display: block;
 }
 
-.range-separator {
-    color: #666666;
-    font-weight: 500;
-    padding: 0 4px;
+/* 號碼輸入區域 */
+.number-input-section {
+    margin: var(--spacing-lg) 0;
 }
 
-/* 小按鈕樣式 */
-.btn-add, .btn-clear, .btn-add-small, .btn-clear-small {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin: 2px;
-}
-
-.btn-add, .btn-add-small {
-    background: var(--button-primary);
-    color: var(--text-primary-button);
-}
-
-.btn-add:hover, .btn-add-small:hover {
-    background: var(--button-primary-hover);
-    transform: translateY(-1px);
-}
-
-.btn-clear, .btn-clear-small {
-    background: var(--button-secondary);
-    color: var(--button-secondary-text);
-}
-
-.btn-clear:hover, .btn-clear-small:hover {
-    background: var(--button-secondary-hover);
-    transform: translateY(-1px);
-}
-
-/* 日系風格增強 */
-/* 排除標籤樣式 */
-
-.exclude-tag {
-    display: inline-block;
-    background: var(--button-secondary);
-    color: var(--text-secondary);
-    padding: 6px var(--spacing-md);
-    margin: 4px;
-    border-radius: var(--radius-large);
-    font-size: 13px;
-    font-weight: 500;
-    position: relative;
-    box-shadow: 0 2px 8px var(--shadow-light);
-}
-
-.exclude-tag .remove-exclude {
-    background: var(--border-color);
-    color: var(--text-secondary);
-    border: none;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: var(--spacing-md);
-    cursor: pointer;
-    margin-left: 6px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    font-weight: 600;
-}
-
-.exclude-tag .remove-exclude:hover {
-    background: var(--button-primary);
-    transform: scale(1.1);
-}
-
-/* 範圍控制元件 */
-.range-controls {
+.range-controls, .single-controls {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
     flex-wrap: wrap;
-    margin-top: var(--spacing-sm);
 }
 
-.range-controls input {
+.range-controls input[type="number"],
+.single-controls input[type="number"] {
     flex: 1;
     min-width: 80px;
-    max-width: 120px;
-}
-
-.prefix-display {
-    background: var(--button-secondary);
-    color: var(--text-secondary);
     padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--radius-button);
-    font-size: var(--font-size-sm);
-    font-weight: 600;
-    min-width: 35px;
-    text-align: center;
-}
-
-/* 滾動條美化 */
-::-webkit-scrollbar {
-    width: var(--spacing-sm);
-}
-
-::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 10px;
     border: 1px solid var(--border-color);
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-}
-
-/* ==================== GitHub 風格專用樣式 - GitHub Design System ==================== */
-
-/* 整體佈局 - GitHub 暗色主題 */
-.github-style body {
-    background: var(--primary-bg);
-    color: var(--text-primary);
-    font-weight: 400;
-    -webkit-font-smoothing: antialiased;
-}
-
-.github-style .container {
-    max-width: 1200px;
-}
-
-/* Header - GitHub 風格標題 */
-.github-style header {
-    background: var(--header-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-large);
-    padding: 32px 24px;
-    box-shadow: 0 1px 3px var(--shadow-light);
-}
-
-.github-style header::before {
-    display: none;
-}
-
-.github-style header h1 {
-    font-size: 2rem; /* 32px */
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-    letter-spacing: -0.025em;
-}
-
-.github-style header p {
-    font-size: 1rem; /* 16px */
-    color: var(--text-tertiary);
-    font-weight: 400;
-}
-
-/* Header 控制項 - GitHub 風格控制面板 */
-.github-style .header-controls {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-card);
-    padding: 16px;
-    margin-bottom: 16px;
-}
-
-.github-style .style-switch label,
-.github-style .language-switch label {
-    font-size: 0.875rem; /* 14px */
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.github-style .style-switch select,
-.github-style .language-switch select {
+    border-radius: var(--radius-medium);
+    font-size: var(--font-size-base);
     background: var(--section-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-button);
-    padding: 8px 12px;
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    min-width: 120px;
+    transition: all 0.3s ease;
 }
 
-.github-style .style-switch select:focus,
-.github-style .language-switch select:focus {
-    border-color: var(--github-blue);
-    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.3);
+.range-controls input[type="number"]:focus,
+.single-controls input[type="number"]:focus {
     outline: none;
-}
-
-/* Section - GitHub 卡片設計 */
-.github-style section {
+    border-color: var(--text-secondary);
     background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-card);
-    padding: 24px;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 3px var(--shadow-light);
+    box-shadow: 0 0 0 3px var(--shadow-color);
 }
 
-.github-style section::before {
-    display: none;
+.range-separator {
+    color: var(--text-tertiary);
+    font-weight: 500;
+    white-space: nowrap;
 }
 
-.github-style section h2 {
-    font-size: 1.25rem; /* 20px */
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 16px;
-    border-bottom: 1px solid var(--separator-color);
-    padding-bottom: 8px;
-}
-
-/* 按鈕 - GitHub 按鈕系統 */
-.github-style .btn-primary {
+/* 按鈕樣式 */
+.btn-add, .btn-add-exclude {
+    padding: var(--spacing-sm) var(--spacing-lg);
     background: var(--button-primary);
-    border: 1px solid var(--github-green-dark);
-    border-radius: var(--radius-button);
-    color: #ffffff;
-    font-size: 0.875rem; /* 14px */
-    font-weight: 500;
-    padding: 8px 16px;
-    min-height: 32px;
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.github-style .btn-primary:hover {
-    background: var(--button-primary-hover);
-    border-color: var(--github-green-dark);
-    transform: none;
-}
-
-.github-style .btn-primary:active {
-    background: var(--github-green-dark);
-    transform: scale(0.98);
-}
-
-.github-style .btn-secondary {
-    background: var(--button-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-button);
-    color: var(--button-secondary-text);
-    font-size: 0.875rem;
-    font-weight: 500;
-    padding: 8px 16px;
-    min-height: 32px;
-    transition: all 0.2s ease;
-}
-
-.github-style .btn-secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: var(--github-gray);
-    transform: none;
-}
-
-.github-style .btn-secondary:active {
-    background: var(--card-secondary);
-    transform: scale(0.98);
-}
-
-/* 表單控件 - GitHub 表單設計 */
-.github-style .setting-group input[type="number"],
-.github-style .setting-group input[type="text"],
-.github-style .setting-group textarea {
-    background: var(--section-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-button);
-    padding: 8px 12px;
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    min-height: 32px;
-    transition: all 0.2s ease;
-}
-
-.github-style .setting-group input:focus,
-.github-style .setting-group textarea:focus {
-    border-color: var(--github-blue);
-    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.3);
-    outline: none;
-}
-
-.github-style .setting-group label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-    display: block;
-}
-
-.github-style .setting-group small {
-    font-size: 0.75rem; /* 12px */
-    color: var(--text-tertiary);
-    font-weight: 400;
-}
-
-/* 表格 - GitHub 表格設計 */
-.github-style table {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-card);
-    overflow: hidden;
-}
-
-.github-style thead {
-    background: var(--card-secondary);
-}
-
-.github-style th {
-    font-size: 0.75rem; /* 12px */
-    font-weight: 600;
-    color: var(--text-primary);
-    text-transform: uppercase;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--separator-color);
-}
-
-.github-style td {
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--separator-color);
-}
-
-.github-style tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.github-style tbody tr:hover {
-    background: rgba(31, 111, 235, 0.1);
-}
-
-/* 結果區域 - GitHub 卡片設計 */
-.github-style .results-section {
-    background: var(--card-bg);
-}
-
-.github-style .round-result {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-card);
-    border-left: 3px solid var(--github-blue);
-    padding: 16px;
-    margin-bottom: 16px;
-}
-
-.github-style .round-result h3 {
-    font-size: 1.125rem; /* 18px */
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 12px;
-}
-
-.github-style .round-info {
-    background: var(--card-secondary);
-    border: 1px solid var(--separator-color);
-    border-radius: var(--radius-button);
-    padding: 12px;
-    margin-bottom: 16px;
-    font-size: 0.875rem;
-    color: var(--text-primary);
-}
-
-.github-style .zone-result {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-card);
-    padding: 16px;
-}
-
-.github-style .zone-result h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 12px;
-}
-
-/* 摘要面板 - GitHub 資訊模組 */
-.github-style .summary-panel {
-    background: var(--card-secondary);
-    border: 1px solid var(--separator-color);
-    border-radius: var(--radius-button);
-    padding: 16px;
-    margin-bottom: 16px;
-}
-
-.github-style .summary-item {
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-}
-
-.github-style .summary-item strong {
-    color: var(--github-blue);
-    font-weight: 600;
-}
-
-/* 小按鈕組 - GitHub 次要按鈕 */
-.github-style .btn-add,
-.github-style .btn-add-small,
-.github-style .btn-clear,
-.github-style .btn-clear-small {
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-button);
-    font-size: 0.75rem; /* 12px */
-    font-weight: 500;
-    padding: 4px 8px;
-    min-height: 28px;
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.github-style .btn-add,
-.github-style .btn-add-small {
-    background: var(--github-green);
-    color: #ffffff;
-    border-color: var(--github-green-dark);
-}
-
-.github-style .btn-add:hover,
-.github-style .btn-add-small:hover {
-    background: var(--github-green-dark);
-}
-
-.github-style .btn-clear,
-.github-style .btn-clear-small {
-    background: var(--github-red);
-    color: #ffffff;
-    border-color: var(--github-red-dark);
-}
-
-.github-style .btn-clear:hover,
-.github-style .btn-clear-small:hover {
-    background: var(--github-red-dark);
-}
-
-/* 複製按鈕組 - GitHub 功能按鈕 */
-.github-style .copy-csv-btn,
-.github-style .copy-numbers-btn {
-    background: var(--card-bg);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-button);
-    font-size: 0.75rem;
-    font-weight: 500;
-    padding: 6px 12px;
-    min-height: 28px;
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.github-style .copy-csv-btn:hover,
-.github-style .copy-numbers-btn:hover {
-    background: var(--card-secondary);
-    border-color: var(--github-gray);
-}
-
-/* 排除標籤 - GitHub 標籤設計 */
-.github-style .exclude-tag {
-    background: var(--card-secondary);
-    border: 1px solid var(--separator-color);
-    border-radius: var(--radius-large);
-    color: var(--text-primary);
-    padding: 4px 8px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    margin: 2px 4px 2px 0;
-}
-
-.github-style .exclude-tag .remove-exclude {
-    background: var(--github-gray);
-    color: #ffffff;
+    color: var(--text-primary-button);
     border: none;
-    border-radius: 50%;
-    width: 14px;
-    height: 14px;
-    font-size: 10px;
-    margin-left: 4px;
+    border-radius: var(--radius-medium);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-add:hover, .btn-add-exclude:hover {
+    background: var(--button-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+}
+
+.btn-add-exclude {
+    background: linear-gradient(135deg, #d88a8a 0%, #c67676 100%);
+}
+
+.btn-add-exclude:hover {
+    background: linear-gradient(135deg, #e09a9a 0%, #d18686 100%);
+}
+
+.btn-clear-full, .btn-reset-exclude {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--button-secondary);
+    color: var(--button-secondary-text);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-medium);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: var(--spacing-lg);
+}
+
+.btn-clear-full:hover, .btn-reset-exclude:hover {
+    background: var(--button-secondary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+/* 號碼顯示區域 */
+.added-numbers, .exclude-display-area {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-medium);
+    border: 1px solid var(--border-light);
+}
+
+.numbers-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin: var(--spacing-sm) 0;
+    min-height: 32px;
+    align-items: flex-start;
+    align-content: flex-start;
+}
+
+.no-numbers {
+    color: var(--text-tertiary);
+    font-style: italic;
     display: flex;
     align-items: center;
-    justify-content: center;
+    height: 32px;
+}
+
+/* 號碼標籤樣式 */
+.number-tag, .exclude-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: linear-gradient(135deg, #e8ddd4 0%, #d6c7b8 100%);
+    color: var(--text-secondary);
+    border-radius: var(--radius-small);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    box-shadow: 0 2px 4px var(--shadow-light);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.exclude-tag {
+    background: linear-gradient(135deg, #f4d4d4 0%, #e8c4c4 100%);
+    color: var(--text-danger);
+}
+
+/* 被排除的車位號碼樣式 */
+.number-tag.excluded-parking {
+    background: linear-gradient(135deg, #ffe0e0 0%, #ffd0d0 100%);
+    color: #cc4444;
+    border: 2px solid #ff9999;
+    position: relative;
+    opacity: 0.8;
+}
+
+.number-tag.excluded-parking::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    right: 8px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #cc4444 20%, #cc4444 80%, transparent 100%);
+    transform: translateY(-50%) rotate(-15deg);
+    pointer-events: none;
+}
+
+.excluded-indicator {
+    font-size: 12px;
+    margin-left: 2px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.number-tag:hover, .exclude-tag:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow-medium);
+}
+
+.number-tag.excluded-parking:hover {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(204, 68, 68, 0.3);
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: currentColor;
     cursor: pointer;
+    padding: 0;
+    margin-left: 4px;
+    font-weight: bold;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
 }
 
-.github-style .exclude-tag .remove-exclude:hover {
-    background: var(--github-red);
+.remove-btn:hover {
+    opacity: 1;
 }
 
-/* 控制面板 */
-.github-style .control-panel {
-    background: var(--card-bg);
+/* 統計顯示 */
+.numbers-count, .exclude-count {
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
+    font-weight: 600;
+    margin-top: var(--spacing-sm);
+    text-align: right;
 }
 
-.github-style .zone-settings {
-    gap: 16px;
+/* 排除區域特殊樣式 */
+.exclude-section {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: rgba(248, 240, 240, 0.7);
+    border-radius: var(--radius-large);
+    border: 1px solid rgba(220, 190, 190, 0.5);
 }
 
-/* 範圍控制 */
-.github-style .range-controls input {
-    background: var(--section-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-button);
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    min-height: 28px;
+.exclude-section h4 {
+    color: var(--text-danger);
+    margin-bottom: var(--spacing-md);
+    font-size: 1.1rem;
 }
 
-.github-style .prefix-display {
-    background: var(--card-secondary);
-    border: 1px solid var(--separator-color);
-    border-radius: var(--radius-button);
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    padding: 6px 8px;
+/* 車位統計摘要 */
+.parking-summary {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: linear-gradient(135deg, #f0f8ff 0%, #e8f4fd 100%);
+    border-radius: var(--radius-medium);
+    border: 1px solid rgba(180, 210, 240, 0.5);
 }
 
-/* 響應式設計 - GitHub 間距系統 */
+.summary-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-item.highlight {
+    color: var(--text-success);
+    font-weight: 700;
+}
+
+.stat-label {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+/* 響應式設計 - 小螢幕時改為上下排列 */
 @media (max-width: 768px) {
-    .github-style .container {
+    .header-controls {
+        justify-content: center;
+        gap: var(--spacing-xl);
+    }
+    
+    .style-switch,
+    .language-switch {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        text-align: center;
+    }
+    
+    .settings-container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .setting-group {
         padding: var(--spacing-lg);
     }
     
-    .github-style header {
-        padding: var(--spacing-xl) var(--spacing-lg);
-        margin-bottom: var(--spacing-lg);
-    }
-    
-    .github-style header h1 {
-        font-size: 1.75rem; /* 28px */
-    }
-    
-    .github-style section {
-        padding: var(--spacing-lg);
-        margin-bottom: var(--spacing-md);
-    }
-    
-    .github-style .header-controls {
-        padding: var(--spacing-md);
+    .exclude-management {
+        margin-top: var(--spacing-lg);
     }
 }

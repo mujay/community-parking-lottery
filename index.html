@@ -26,7 +26,7 @@
                 </div>
             </div>
             <h1 data-i18n="title">🚗 社區停車位抽籤系統</h1>
-            <p data-i18n="subtitle">總停車位數：322格 (A區：1-210，B區：211-322)</p>
+            <p data-i18n="subtitle">總停車位數：322格</p>
         </header>
 
         <main>
@@ -34,223 +34,183 @@
             <section class="control-panel">
                 <h2 data-i18n="lottery-settings">抽籤設定</h2>
                 
-                <div class="setting-group">
-                    <label>
-                        <input type="checkbox" id="separate-zones" checked> <span data-i18n="separate-zones">分區抽籤</span>
-                    </label>
-                    <small data-i18n="separate-zones-desc">勾選後將A區和B區分別進行抽籤</small>
-                </div>
-
-                <div class="zone-settings">
-                    <div class="zone-setting">
-                        <h3 data-i18n="a-zone-setting">A區設定 (1-210)</h3>
+                <!-- 左右並排的設定區域 -->
+                <div class="settings-container">
+                    <!-- 抽籤號碼設定 -->
+                    <div class="setting-group">
+                        <h3 data-i18n="lottery-numbers">🎫 抽籤號碼設定</h3>
                         
-                        <!-- 抽籤號碼設定 -->
-                        <div class="lottery-numbers-section">
-                            <h4 data-i18n="lottery-numbers">🎫 抽籤號碼設定</h4>
-                            
-                            <!-- 已加入的抽籤號碼範圍顯示 -->
-                            <div class="added-ranges">
-                                <label data-i18n="added-ranges">已加入的抽籤號碼範圍：</label>
-                                <div id="a-zone-ranges-display" class="ranges-display">
-                                    <span class="no-ranges" data-i18n="no-ranges">尚未加入任何範圍</span>
-                                </div>
-                                <div class="range-count" id="a-zone-count"><span data-i18n="lottery-count">抽籤號碼總數：</span>0</div>
+                        <!-- 已加入的抽籤號碼顯示 -->
+                        <div class="added-numbers">
+                            <label data-i18n="added-lottery-numbers">已加入的抽籤號碼：</label>
+                            <div id="lottery-numbers-display" class="numbers-display">
+                                <span class="no-numbers" data-i18n="no-numbers">尚未加入任何號碼</span>
                             </div>
-                            
-                            <!-- 新增抽籤號碼範圍 -->
-                            <div class="input-group range-input">
-                                <label data-i18n="add-range">新增抽籤號碼範圍：</label>
-                                <div class="range-controls">
-                                    <span class="prefix-display">A</span>
-                                    <input type="text" id="a-zone-start" placeholder="1" maxlength="3"
-                                           title="輸入起始數字部分 (1-999)">
-                                    <span class="range-separator" data-i18n="to">至</span>
-                                    <span class="prefix-display">A</span>
-                                    <input type="text" id="a-zone-end" placeholder="50" maxlength="3"
-                                           title="輸入結束數字部分 (1-999)">
-                                    <button type="button" id="add-a-range" class="btn-add" data-i18n="add">加入</button>
-                                    <button type="button" id="clear-a-ranges" class="btn-clear" data-i18n="clear">清空</button>
-                                </div>
+                            <div class="numbers-count" id="lottery-count">
+                                <span data-i18n="lottery-count">抽籤號碼總數：</span>0
                             </div>
                         </div>
                         
-                        <!-- 車位設定 -->
-                        <div class="parking-spots-section">
-                            <h4 data-i18n="parking-spots">🚗 車位設定</h4>
-                            
-                            <!-- 可用車位數顯示 -->
-                            <div class="available-spots">
-                                <div class="spots-summary" id="a-zone-spots-summary">
-                                    <div class="total-spots"><span data-i18n="total-spots">總車位數：</span>210個</div>
-                                    <div class="excluded-spots"><span data-i18n="excluded-spots">排除車位：</span>5個</div>
-                                    <div class="available-spots-count"><span data-i18n="available-spots">可用車位：</span>205個</div>
-                                </div>
+                        <!-- 新增抽籤號碼 -->
+                        <div class="number-input-section">
+                            <div class="input-method-tabs">
+                                <button type="button" class="tab-btn active" data-tab="lottery-batch">批次新增</button>
+                                <button type="button" class="tab-btn" data-tab="lottery-single">單一新增</button>
                             </div>
                             
-                            <!-- 不參與的停車位管理 -->
-                            <div class="exclude-management">
-                                <label data-i18n="exclude-label">A區排除的停車位號碼：</label>
-                                <div id="a-zone-exclude-display" class="exclude-display">
-                                    <span class="exclude-tag">191</span>
-                                    <span class="exclude-tag">192</span>
-                                    <span class="exclude-tag">193</span>
-                                    <span class="exclude-tag">194</span>
-                                    <span class="exclude-tag">195</span>
-                                </div>
-                                <div class="exclude-controls">
-                                    <input type="text" id="a-zone-exclude-input" data-i18n-placeholder="exclude-input-placeholder" placeholder="輸入停車位號碼或範圍 (例：10 或 25-30)">
-                                    <button type="button" id="add-a-exclude" class="btn-add-small" data-i18n="add-exclude">加入</button>
-                                    <button type="button" id="clear-a-exclude" class="btn-clear-small" data-i18n="reset-exclude">重置為預設</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="zone-setting">
-                        <h3>B區設定 (211-322)</h3>
-                        
-                        <!-- 抽籤號碼設定 -->
-                        <div class="lottery-numbers-section">
-                            <h4>🎫 抽籤號碼設定</h4>
-                            
-                            <!-- 已加入的抽籤號碼範圍顯示 -->
-                            <div class="added-ranges">
-                                <label>已加入的抽籤號碼範圍：</label>
-                                <div id="b-zone-ranges-display" class="ranges-display">
-                                    <span class="no-ranges">尚未加入任何範圍</span>
-                                </div>
-                                <div class="range-count" id="b-zone-count">抽籤號碼總數：0</div>
-                            </div>
-                            
-                            <!-- 新增抽籤號碼範圍 -->
-                            <div class="input-group range-input">
-                                <label>新增抽籤號碼範圍：</label>
-                                <div class="range-controls">
-                                    <span class="prefix-display">B</span>
-                                    <input type="text" id="b-zone-start" placeholder="1" maxlength="3"
-                                           title="輸入起始數字部分 (1-999)">
-                                    <span class="range-separator">至</span>
-                                    <span class="prefix-display">B</span>
-                                    <input type="text" id="b-zone-end" placeholder="30" maxlength="3"
-                                           title="輸入結束數字部分 (1-999)">
-                                    <button type="button" id="add-b-range" class="btn-add">加入</button>
-                                    <button type="button" id="clear-b-ranges" class="btn-clear">清空</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- 車位設定 -->
-                        <div class="parking-spots-section">
-                            <h4>🚗 車位設定</h4>
-                            
-                            <!-- 可用車位數顯示 -->
-                            <div class="available-spots">
-                                <div class="spots-summary" id="b-zone-spots-summary">
-                                    <div class="total-spots">總車位數：112個</div>
-                                    <div class="excluded-spots">排除車位：10個</div>
-                                    <div class="available-spots-count">可用車位：102個</div>
-                                </div>
-                            </div>
-                            
-                            <!-- 不參與的停車位管理 -->
-                            <div class="exclude-management">
-                                <label>B區排除的停車位號碼：</label>
-                                <div id="b-zone-exclude-display" class="exclude-display">
-                                    <span class="exclude-tag">313</span>
-                                    <span class="exclude-tag">314</span>
-                                    <span class="exclude-tag">315</span>
-                                    <span class="exclude-tag">316</span>
-                                    <span class="exclude-tag">317</span>
-                                    <span class="exclude-tag">318</span>
-                                    <span class="exclude-tag">319</span>
-                                    <span class="exclude-tag">320</span>
-                                    <span class="exclude-tag">321</span>
-                                    <span class="exclude-tag">322</span>
-                                </div>
-                                <div class="exclude-controls">
-                                    <input type="text" id="b-zone-exclude-input" placeholder="輸入停車位號碼或範圍 (例：215 或 220-225)">
-                                    <button type="button" id="add-b-exclude" class="btn-add-small">加入</button>
-                                    <button type="button" id="clear-b-exclude" class="btn-clear-small">清空</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="unified-settings" style="display: none;">
-                    <div class="zone-setting">
-                        <h3>整體設定 (A區+B區)</h3>
-                        
-                        <!-- 抽籤號碼設定 -->
-                        <div class="lottery-numbers-section">
-                            <h4>🎫 抽籤號碼設定</h4>
-                            
-                            <!-- 已加入的抽籤號碼範圍顯示 -->
-                            <div class="added-ranges">
-                                <label>已加入的抽籤號碼範圍：</label>
-                                <div id="unified-ranges-display" class="ranges-display">
-                                    <span class="no-ranges">尚未加入任何範圍</span>
-                                </div>
-                                <div class="range-count" id="unified-count">抽籤號碼總數：0</div>
-                            </div>
-                            
-                            <!-- 新增抽籤號碼範圍 -->
-                            <div class="input-group range-input">
-                                <label>新增抽籤號碼範圍：</label>
-                                <div class="range-controls">
-                                    <input type="text" id="unified-start" placeholder="1" maxlength="3"
-                                           title="輸入起始數字部分 (1-999)">
-                                    <span class="range-separator">至</span>
-                                    <input type="text" id="unified-end" placeholder="50" maxlength="3"
-                                           title="輸入結束數字部分 (1-999)">
-                                    <button type="button" id="add-unified-range" class="btn-add">加入</button>
-                                    <button type="button" id="clear-unified-ranges" class="btn-clear">清空</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- 車位設定 -->
-                        <div class="parking-spots-section">
-                            <h4>🚗 車位設定</h4>
-                            
-                            <!-- 可用車位數顯示 -->
-                            <div class="available-spots">
-                                <div class="spots-summary" id="unified-spots-summary">
-                                    <div class="total-spots">總車位數：322個</div>
-                                    <div class="excluded-spots">排除車位：15個</div>
-                                    <div class="available-spots-count">可用車位：307個</div>
-                                    <div class="zone-breakdown">
-                                        <span class="zone-detail">A區可用：205個</span>
-                                        <span class="zone-detail">B區可用：102個</span>
+                            <!-- 批次新增（範圍）-->
+                            <div id="lottery-batch-tab" class="tab-content active">
+                                <div class="input-group">
+                                    <label>新增抽籤號碼範圍：</label>
+                                    <div class="range-controls">
+                                        <input type="number" id="lottery-range-start" placeholder="1" min="1" max="999">
+                                        <span class="range-separator" data-i18n="to">至</span>
+                                        <input type="number" id="lottery-range-end" placeholder="50" min="1" max="999">
+                                        <button type="button" id="add-lottery-range" class="btn-add">加入範圍</button>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- 不參與的停車位管理 -->
-                            <div class="exclude-management">
-                                <label>排除的停車位號碼：</label>
-                                <div id="unified-exclude-display" class="exclude-display">
-                                    <span class="exclude-tag">191</span>
-                                    <span class="exclude-tag">192</span>
-                                    <span class="exclude-tag">193</span>
-                                    <span class="exclude-tag">194</span>
-                                    <span class="exclude-tag">195</span>
-                                    <span class="exclude-tag">313</span>
-                                    <span class="exclude-tag">314</span>
-                                    <span class="exclude-tag">315</span>
-                                    <span class="exclude-tag">316</span>
-                                    <span class="exclude-tag">317</span>
-                                    <span class="exclude-tag">318</span>
-                                    <span class="exclude-tag">319</span>
-                                    <span class="exclude-tag">320</span>
-                                    <span class="exclude-tag">321</span>
-                                    <span class="exclude-tag">322</span>
+                            <!-- 單一新增 -->
+                            <div id="lottery-single-tab" class="tab-content">
+                                <div class="input-group">
+                                    <label>新增單一抽籤號碼：</label>
+                                    <div class="single-controls">
+                                        <input type="number" id="lottery-single-number" placeholder="25" min="1" max="999">
+                                        <button type="button" id="add-lottery-single" class="btn-add">加入號碼</button>
+                                    </div>
                                 </div>
-                                <div class="exclude-controls">
-                                    <input type="text" id="unified-exclude-input" placeholder="輸入停車位號碼或範圍 (例：10 或 25-30)">
-                                    <button type="button" id="add-unified-exclude" class="btn-add-small">加入</button>
-                                    <button type="button" id="clear-unified-exclude" class="btn-clear-small">重置為預設</button>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="clear-lottery-numbers" class="btn-clear-full" data-i18n="clear">清空所有抽籤號碼</button>
+                    </div>
+                    
+                    <!-- 車位號碼設定 -->
+                    <div class="setting-group">
+                        <h3 data-i18n="parking-numbers">🚗 車位號碼設定</h3>
+                        
+                        <!-- 已加入的車位號碼顯示 -->
+                        <div class="added-numbers">
+                            <label data-i18n="added-parking-numbers">已加入的車位號碼：</label>
+                            <div id="parking-numbers-display" class="numbers-display">
+                                <span class="no-numbers" data-i18n="no-numbers">尚未加入任何號碼</span>
+                            </div>
+                            <div class="numbers-count" id="parking-count">
+                                <span data-i18n="parking-count">車位號碼總數：</span>0
+                            </div>
+                        </div>
+                        
+                        <!-- 新增車位號碼 -->
+                        <div class="number-input-section">
+                            <div class="input-method-tabs">
+                                <button type="button" class="tab-btn active" data-tab="parking-batch">批次新增</button>
+                                <button type="button" class="tab-btn" data-tab="parking-single">單一新增</button>
+                            </div>
+                            
+                            <!-- 批次新增（範圍）-->
+                            <div id="parking-batch-tab" class="tab-content active">
+                                <div class="input-group">
+                                    <label>新增車位號碼範圍：</label>
+                                    <div class="range-controls">
+                                        <input type="number" id="parking-range-start" placeholder="1" min="1" max="999">
+                                        <span class="range-separator" data-i18n="to">至</span>
+                                        <input type="number" id="parking-range-end" placeholder="322" min="1" max="999">
+                                        <button type="button" id="add-parking-range" class="btn-add">加入範圍</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 單一新增 -->
+                            <div id="parking-single-tab" class="tab-content">
+                                <div class="input-group">
+                                    <label>新增單一車位號碼：</label>
+                                    <div class="single-controls">
+                                        <input type="number" id="parking-single-number" placeholder="101" min="1" max="999">
+                                        <button type="button" id="add-parking-single" class="btn-add">加入號碼</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="clear-parking-numbers" class="btn-clear-full" data-i18n="clear">清空所有車位號碼</button>
+                        
+                        <!-- 排除車位號碼管理 -->
+                        <div class="exclude-section">
+                            <h4>🚫 排除車位號碼</h4>
+                            <div class="exclude-display-area">
+                                <label data-i18n="exclude-label">已排除的車位號碼：</label>
+                                <div id="exclude-numbers-display" class="numbers-display">
+                                    <span class="exclude-tag">191 <button class="remove-btn" onclick="lottery.removeExcludeNumber(191)">×</button></span>
+                                    <span class="exclude-tag">192 <button class="remove-btn" onclick="lottery.removeExcludeNumber(192)">×</button></span>
+                                    <span class="exclude-tag">193 <button class="remove-btn" onclick="lottery.removeExcludeNumber(193)">×</button></span>
+                                    <span class="exclude-tag">194 <button class="remove-btn" onclick="lottery.removeExcludeNumber(194)">×</button></span>
+                                    <span class="exclude-tag">195 <button class="remove-btn" onclick="lottery.removeExcludeNumber(195)">×</button></span>
+                                    <span class="exclude-tag">313 <button class="remove-btn" onclick="lottery.removeExcludeNumber(313)">×</button></span>
+                                    <span class="exclude-tag">314 <button class="remove-btn" onclick="lottery.removeExcludeNumber(314)">×</button></span>
+                                    <span class="exclude-tag">315 <button class="remove-btn" onclick="lottery.removeExcludeNumber(315)">×</button></span>
+                                    <span class="exclude-tag">316 <button class="remove-btn" onclick="lottery.removeExcludeNumber(316)">×</button></span>
+                                    <span class="exclude-tag">317 <button class="remove-btn" onclick="lottery.removeExcludeNumber(317)">×</button></span>
+                                    <span class="exclude-tag">318 <button class="remove-btn" onclick="lottery.removeExcludeNumber(318)">×</button></span>
+                                    <span class="exclude-tag">319 <button class="remove-btn" onclick="lottery.removeExcludeNumber(319)">×</button></span>
+                                    <span class="exclude-tag">320 <button class="remove-btn" onclick="lottery.removeExcludeNumber(320)">×</button></span>
+                                    <span class="exclude-tag">321 <button class="remove-btn" onclick="lottery.removeExcludeNumber(321)">×</button></span>
+                                    <span class="exclude-tag">322 <button class="remove-btn" onclick="lottery.removeExcludeNumber(322)">×</button></span>
+                                </div>
+                                <div class="exclude-count" id="exclude-count">
+                                    排除車位總數：15
+                                </div>
+                            </div>
+                            
+                            <!-- 新增排除車位號碼 -->
+                            <div class="number-input-section">
+                                <div class="input-method-tabs">
+                                    <button type="button" class="tab-btn active" data-tab="exclude-batch">批次排除</button>
+                                    <button type="button" class="tab-btn" data-tab="exclude-single">單一排除</button>
+                                </div>
+                                
+                                <!-- 批次排除 -->
+                                <div id="exclude-batch-tab" class="tab-content active">
+                                    <div class="input-group">
+                                        <label>排除車位號碼範圍：</label>
+                                        <div class="range-controls">
+                                            <input type="number" id="exclude-range-start" placeholder="25" min="1" max="999">
+                                            <span class="range-separator">至</span>
+                                            <input type="number" id="exclude-range-end" placeholder="30" min="1" max="999">
+                                            <button type="button" id="add-exclude-range" class="btn-add-exclude">排除範圍</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 單一排除 -->
+                                <div id="exclude-single-tab" class="tab-content">
+                                    <div class="input-group">
+                                        <label>排除單一車位號碼：</label>
+                                        <div class="single-controls">
+                                            <input type="number" id="exclude-single-number" placeholder="25" min="1" max="999">
+                                            <button type="button" id="add-exclude-single" class="btn-add-exclude">排除號碼</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="reset-exclude-numbers" class="btn-reset-exclude" data-i18n="reset-exclude">重置為預設排除</button>
+                        </div>
+                        
+                        <!-- 可用車位統計 -->
+                        <div class="parking-summary" id="parking-summary">
+                            <div class="summary-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">總車位：</span>
+                                    <span class="stat-value" id="total-parking-spots">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">排除：</span>
+                                    <span class="stat-value" id="excluded-parking-spots">15</span>
+                                </div>
+                                <div class="stat-item highlight">
+                                    <span class="stat-label">可用：</span>
+                                    <span class="stat-value" id="available-parking-spots">0</span>
                                 </div>
                             </div>
                         </div>
@@ -269,21 +229,8 @@
                             <span class="summary-label">可用車位總數：</span>
                             <span class="summary-value" id="total-available-spots">0</span>
                         </div>
-                        <div class="summary-breakdown" id="summary-breakdown" style="display: none;">
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">A區：</span>
-                                <span class="breakdown-value">
-                                    抽籤號碼 <span id="a-zone-lottery-count">0</span> 個，
-                                    可用車位 <span id="a-zone-available-count">0</span> 個
-                                </span>
-                            </div>
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">B區：</span>
-                                <span class="breakdown-value">
-                                    抽籤號碼 <span id="b-zone-lottery-count">0</span> 個，
-                                    可用車位 <span id="b-zone-available-count">0</span> 個
-                                </span>
-                            </div>
+                        <div class="summary-note" id="summary-note" style="display: none;">
+                            <span class="note-text">注意：抽籤號碼數量超過可用車位，將隨機選擇部分號碼中籤</span>
                         </div>
                     </div>
                 </div>
@@ -311,6 +258,7 @@
         </main>
     </div>
 
+    <script src="config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

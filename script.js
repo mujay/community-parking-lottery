@@ -2,23 +2,14 @@
 
 class ParkingLotterySystem {
     constructor() {
-        // 身障車格
-        const defaultAZoneExcludes = [191, 192, 193, 194, 195];
-        const defaultBZoneExcludes = [
-            313, 314, 315, 316, 317, 318, 319, 320, 321, 322,
-        ];
-
         this.history =
             JSON.parse(localStorage.getItem('parkingLotteryHistory')) || [];
-        this.aZoneRanges = [];
-        this.bZoneRanges = [];
-        this.unifiedRanges = [];
-        this.aZoneExcludes = defaultAZoneExcludes; // 預設身障車格
-        this.bZoneExcludes = defaultBZoneExcludes; // 預設充電機車位
-        this.unifiedExcludes = [
-            ...defaultAZoneExcludes,
-            ...defaultBZoneExcludes,
-        ]; // 預設身障車格 + 充電機車位
+        this.lotteryNumbers = []; // 抽籤號碼陣列
+        this.parkingNumbers = []; // 車位號碼陣列
+        this.excludeNumbers = ParkingConfig.defaultExcludedSpots.slice(); // 排除的車位號碼（複製預設值）
+
+        // 處理歷史記錄的向後相容性
+        this.migrateHistoryData();
 
         // 主題和語言系統
         this.currentTheme = localStorage.getItem('theme') || 'japanese';
@@ -27,7 +18,8 @@ class ParkingLotterySystem {
 
         this.initializeThemeAndLanguage();
         this.initializeEventListeners();
-        this.initializeExcludeDisplays();
+        this.initializeTabSwitching();
+        this.updateAllDisplays();
         this.loadHistory();
     }
 
@@ -36,42 +28,34 @@ class ParkingLotterySystem {
         return {
             zh: {
                 title: '🚗 社區停車位抽籤系統',
-                subtitle: '總停車位數：322格 (A區：1-210，B區：211-322)',
                 'lottery-settings': '抽籤設定',
-                'separate-zones': '分區抽籤',
-                'separate-zones-desc': '勾選後將A區和B區分別進行抽籤',
                 'start-lottery': '開始抽籤',
                 'reset-lottery': '重置',
                 'clear-history': '清除記錄',
-                'a-zone-setting': 'A區設定 (1-210)',
-                'b-zone-setting': 'B區設定 (211-322)',
-                'unified-setting': '整體設定 (1-322)',
                 'lottery-numbers': '🎫 抽籤號碼設定',
                 'parking-spots': '🚗 車位設定',
-                'added-ranges': '已加入的抽籤號碼範圍：',
+                'added-ranges': '已加入的抽籤號碼：',
+                'added-parking-ranges': '已加入的車位範圍：',
                 'add-range': '新增抽籤號碼範圍：',
+                'add-parking-range': '新增車位範圍：',
                 to: '至',
                 add: '加入',
                 clear: '清空',
                 reset: '重置',
-                'no-ranges': '尚未加入任何範圍',
+                'no-ranges': '尚未加入任何號碼',
+                'no-numbers': '尚未加入任何號碼',
                 'lottery-count': '抽籤號碼總數：',
+                'parking-count': '車位總數：',
                 'total-spots': '總車位數：',
                 'excluded-spots': '排除車位：',
                 'available-spots': '可用車位：',
-                'exclude-label': 'A區排除的停車位號碼：',
-                'exclude-input-placeholder':
-                    '輸入停車位號碼或範圍 (例：10 或 25-30)',
+                'exclude-label': '排除的停車位號碼：',
+                'exclude-input-placeholder': '191-195,313-322',
                 'add-exclude': '加入',
                 'reset-exclude': '重置為預設',
                 'lottery-summary': '📊 本次抽籤摘要',
                 'total-lottery-numbers': '抽籤號碼總數：',
                 'total-available-spots': '可用車位總數：',
-                'a-zone-label': 'A區：',
-                'b-zone-label': 'B區：',
-                'lottery-numbers-short': '抽籤號碼',
-                'available-spots-short': '可用車位',
-                units: '個',
                 'lottery-results': '抽籤結果',
                 'lottery-history': '歷史記錄',
                 'no-results': '尚未進行抽籤',
@@ -79,43 +63,34 @@ class ParkingLotterySystem {
             },
             en: {
                 title: '🚗 Community Parking Lottery System',
-                subtitle: 'Total Spaces: 322 (Zone A: 1-210, Zone B: 211-322)',
                 'lottery-settings': 'Lottery Settings',
-                'separate-zones': 'Separate Zones',
-                'separate-zones-desc':
-                    'Check to conduct separate lotteries for Zone A and Zone B',
                 'start-lottery': 'Start Lottery',
                 'reset-lottery': 'Reset',
                 'clear-history': 'Clear History',
-                'a-zone-setting': 'Zone A Settings (1-210)',
-                'b-zone-setting': 'Zone B Settings (211-322)',
-                'unified-setting': 'Unified Settings (1-322)',
                 'lottery-numbers': '🎫 Lottery Numbers',
                 'parking-spots': '🚗 Parking Spots',
-                'added-ranges': 'Added Lottery Number Ranges:',
+                'added-ranges': 'Added Lottery Numbers:',
+                'added-parking-ranges': 'Added Parking Ranges:',
                 'add-range': 'Add Lottery Number Range:',
+                'add-parking-range': 'Add Parking Range:',
                 to: 'to',
                 add: 'Add',
                 clear: 'Clear',
                 reset: 'Reset',
-                'no-ranges': 'No ranges added yet',
+                'no-ranges': 'No numbers added yet',
+                'no-numbers': 'No numbers added yet',
                 'lottery-count': 'Total Numbers: ',
+                'parking-count': 'Total Spots: ',
                 'total-spots': 'Total Spots: ',
                 'excluded-spots': 'Excluded: ',
                 'available-spots': 'Available: ',
-                'exclude-label': 'Zone A Excluded Parking Numbers:',
-                'exclude-input-placeholder':
-                    'Enter parking numbers or range (e.g.: 10 or 25-30)',
+                'exclude-label': 'Excluded Parking Numbers:',
+                'exclude-input-placeholder': '191-195,313-322',
                 'add-exclude': 'Add',
                 'reset-exclude': 'Reset to Default',
                 'lottery-summary': '📊 Lottery Summary',
                 'total-lottery-numbers': 'Total Lottery Numbers:',
                 'total-available-spots': 'Total Available Spots:',
-                'a-zone-label': 'Zone A:',
-                'b-zone-label': 'Zone B:',
-                'lottery-numbers-short': 'Numbers',
-                'available-spots-short': 'Spots',
-                units: '',
                 'lottery-results': 'Lottery Results',
                 'lottery-history': 'Lottery History',
                 'no-results': 'No lottery conducted yet',
@@ -188,154 +163,150 @@ class ParkingLotterySystem {
 
     // 初始化事件監聽器
     initializeEventListeners() {
+        // 抽籤號碼相關事件
+        document
+            .getElementById('add-lottery-range')
+            .addEventListener('click', () => this.addLotteryRange());
+        document
+            .getElementById('add-lottery-single')
+            .addEventListener('click', () => this.addLotterySingle());
+        document
+            .getElementById('clear-lottery-numbers')
+            .addEventListener('click', () => this.clearLotteryNumbers());
+
+        // 車位號碼相關事件
+        document
+            .getElementById('add-parking-range')
+            .addEventListener('click', () => this.addParkingRange());
+        document
+            .getElementById('add-parking-single')
+            .addEventListener('click', () => this.addParkingSingle());
+        document
+            .getElementById('clear-parking-numbers')
+            .addEventListener('click', () => this.clearParkingNumbers());
+
+        // 排除車位相關事件
+        document
+            .getElementById('add-exclude-range')
+            .addEventListener('click', () => this.addExcludeRange());
+        document
+            .getElementById('add-exclude-single')
+            .addEventListener('click', () => this.addExcludeSingle());
+        document
+            .getElementById('reset-exclude-numbers')
+            .addEventListener('click', () => this.resetExcludeNumbers());
+
+        // Enter 鍵支援
+        ['lottery-range-start', 'lottery-range-end'].forEach((id) => {
+            document.getElementById(id).addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.addLotteryRange();
+                }
+            });
+        });
+
+        document
+            .getElementById('lottery-single-number')
+            .addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.addLotterySingle();
+                }
+            });
+
+        ['parking-range-start', 'parking-range-end'].forEach((id) => {
+            document.getElementById(id).addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.addParkingRange();
+                }
+            });
+        });
+
+        document
+            .getElementById('parking-single-number')
+            .addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.addParkingSingle();
+                }
+            });
+
+        ['exclude-range-start', 'exclude-range-end'].forEach((id) => {
+            document.getElementById(id).addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.addExcludeRange();
+                }
+            });
+        });
+
+        document
+            .getElementById('exclude-single-number')
+            .addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.addExcludeSingle();
+                }
+            });
+
+        // 抽籤和重置按鈕
         document
             .getElementById('start-lottery')
             .addEventListener('click', () => this.startLottery());
         document
             .getElementById('reset-lottery')
             .addEventListener('click', () => this.resetLottery());
+
+        // 歷史記錄清除
         document
             .getElementById('clear-history')
             .addEventListener('click', () => this.clearHistory());
+
+        // 主題和語言切換
         document
-            .getElementById('separate-zones')
+            .getElementById('style-selector')
             .addEventListener('change', (e) =>
-                this.toggleZoneSettings(e.target.checked)
+                this.switchTheme(e.target.value)
             );
-
-        // 範圍管理按鈕事件
         document
-            .getElementById('add-a-range')
-            .addEventListener('click', () => this.addRange('a'));
-        document
-            .getElementById('clear-a-ranges')
-            .addEventListener('click', () => this.clearRanges('a'));
-        document
-            .getElementById('add-b-range')
-            .addEventListener('click', () => this.addRange('b'));
-        document
-            .getElementById('clear-b-ranges')
-            .addEventListener('click', () => this.clearRanges('b'));
-        document
-            .getElementById('add-unified-range')
-            .addEventListener('click', () => this.addRange('unified'));
-        document
-            .getElementById('clear-unified-ranges')
-            .addEventListener('click', () => this.clearRanges('unified'));
-
-        // 排除停車位管理按鈕事件
-        document
-            .getElementById('add-a-exclude')
-            .addEventListener('click', () => this.addExclude('a'));
-        document
-            .getElementById('clear-a-exclude')
-            .addEventListener('click', () => this.resetExclude('a'));
-        document
-            .getElementById('add-b-exclude')
-            .addEventListener('click', () => this.addExclude('b'));
-        document
-            .getElementById('clear-b-exclude')
-            .addEventListener('click', () => this.clearExclude('b'));
-        document
-            .getElementById('add-unified-exclude')
-            .addEventListener('click', () => this.addExclude('unified'));
-        document
-            .getElementById('clear-unified-exclude')
-            .addEventListener('click', () => this.resetExclude('unified'));
-
-        // Enter 鍵支援
-        [
-            'a-zone-start',
-            'a-zone-end',
-            'b-zone-start',
-            'b-zone-end',
-            'unified-start',
-            'unified-end',
-        ].forEach((id) => {
-            document.getElementById(id).addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const zone = id.includes('a-zone')
-                        ? 'a'
-                        : id.includes('b-zone')
-                        ? 'b'
-                        : 'unified';
-                    this.addRange(zone);
-                }
-            });
-        });
-
-        // 排除輸入框 Enter 鍵支援
-        [
-            'a-zone-exclude-input',
-            'b-zone-exclude-input',
-            'unified-exclude-input',
-        ].forEach((id) => {
-            document.getElementById(id).addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const zone = id.includes('a-zone')
-                        ? 'a'
-                        : id.includes('b-zone')
-                        ? 'b'
-                        : 'unified';
-                    this.addExclude(zone);
-                }
-            });
-        });
-
-        // 數字輸入框限制
-        [
-            'a-zone-start',
-            'a-zone-end',
-            'b-zone-start',
-            'b-zone-end',
-            'unified-start',
-            'unified-end',
-        ].forEach((id) => {
-            document.getElementById(id).addEventListener('input', (e) => {
-                // 只允許數字，限制1-3位
-                let value = e.target.value.replace(/[^0-9]/g, '');
-                if (value.length > 3) {
-                    value = value.slice(0, 3);
-                }
-                e.target.value = value;
-            });
-        });
-
-        // 初始化顯示設定
-        this.toggleZoneSettings(
-            document.getElementById('separate-zones').checked
-        );
+            .getElementById('language-selector')
+            .addEventListener('change', (e) =>
+                this.switchLanguage(e.target.value)
+            );
     }
 
-    // 初始化排除停車位顯示
-    initializeExcludeDisplays() {
-        this.updateExcludeDisplay('a');
-        this.updateExcludeDisplay('b');
-        this.updateExcludeDisplay('unified');
-
-        // 初始化車位摘要
-        this.updateSpotsSummary('a');
-        this.updateSpotsSummary('b');
-        this.updateSpotsSummary('unified');
-
-        // 初始化抽籤摘要
-        this.updateLotterySummary();
+    // 初始化分頁切換功能
+    initializeTabSwitching() {
+        // 為所有分頁按鈕添加事件監聽器
+        document.querySelectorAll('.tab-btn').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                const tabName = e.target.getAttribute('data-tab');
+                this.switchTab(tabName, e.target);
+            });
+        });
     }
 
-    // 切換區域設定顯示
-    toggleZoneSettings(isSeparate) {
-        const zoneSettings = document.querySelector('.zone-settings');
-        const unifiedSettings = document.querySelector('.unified-settings');
+    // 分頁切換邏輯
+    switchTab(tabName, clickedBtn) {
+        // 找到同組的所有按鈕和內容
+        const tabGroup = clickedBtn.parentElement;
+        const contentContainer = tabGroup.nextElementSibling.parentElement;
 
-        if (isSeparate) {
-            zoneSettings.style.display = 'grid';
-            unifiedSettings.style.display = 'none';
-        } else {
-            zoneSettings.style.display = 'none';
-            unifiedSettings.style.display = 'block';
-        }
+        // 移除所有 active 狀態
+        tabGroup
+            .querySelectorAll('.tab-btn')
+            .forEach((btn) => btn.classList.remove('active'));
+        contentContainer
+            .querySelectorAll('.tab-content')
+            .forEach((content) => content.classList.remove('active'));
 
-        // 更新抽籤摘要
+        // 添加 active 狀態到點擊的按鈕和對應的內容
+        clickedBtn.classList.add('active');
+        document.getElementById(tabName + '-tab').classList.add('active');
+    }
+
+    // 更新所有顯示
+    updateAllDisplays() {
+        this.updateLotteryNumbersDisplay();
+        this.updateParkingNumbersDisplay();
+        this.updateExcludeNumbersDisplay();
+        this.updateParkingSummary();
         this.updateLotterySummary();
     }
 
@@ -401,32 +372,11 @@ class ParkingLotterySystem {
         return this.parseNumberRange(excludeStr);
     }
 
-    // 獲取可用的停車位（只返回停車位號碼，不包括排除的）
-    getAvailableParkingSpots(zone, excludeNumbers) {
-        let allSpots = [];
-
-        if (zone === 'A') {
-            // A區：1-210
-            for (let i = 1; i <= 210; i++) {
-                allSpots.push(i);
-            }
-        } else if (zone === 'B') {
-            // B區：211-322
-            for (let i = 211; i <= 322; i++) {
-                allSpots.push(i);
-            }
-        } else {
-            // 整體：1-322
-            for (let i = 1; i <= 322; i++) {
-                allSpots.push(i);
-            }
-        }
-
-        // 排除指定的停車位
-        const availableSpots = allSpots.filter(
-            (spot) => !excludeNumbers.includes(spot)
+    // 獲取可用的停車位（從設定的車位號碼中排除指定的車位）
+    getAvailableParkingSpots() {
+        return this.parkingNumbers.filter(
+            (num) => !this.excludeNumbers.includes(num)
         );
-        return availableSpots;
     }
 
     // Fisher-Yates 洗牌演算法
@@ -449,10 +399,18 @@ class ParkingLotterySystem {
             throw new Error('沒有可用的停車位');
         }
 
-        if (lotteryNumbers.length > availableSpots.length) {
-            throw new Error(
-                `抽籤號碼數量（${lotteryNumbers.length}）超過可用停車位數量（${availableSpots.length}）`
-            );
+        let selectedLotteryNumbers;
+        let note = '';
+
+        if (lotteryNumbers.length <= availableSpots.length) {
+            // 抽籤號碼數量 <= 車位數量，所有號碼都中籤
+            selectedLotteryNumbers = lotteryNumbers;
+        } else {
+            // 抽籤號碼數量 > 車位數量，隨機選擇部分號碼中籤
+            selectedLotteryNumbers = this.shuffleArray([
+                ...lotteryNumbers,
+            ]).slice(0, availableSpots.length);
+            note = `注意：抽籤號碼數量(${lotteryNumbers.length})超過可用車位數量(${availableSpots.length})，已隨機選擇${availableSpots.length}個號碼參與抽籤`;
         }
 
         // 洗牌停車位
@@ -460,202 +418,372 @@ class ParkingLotterySystem {
 
         // 配對抽籤號碼和停車位
         const results = [];
-        for (let i = 0; i < lotteryNumbers.length; i++) {
+        for (let i = 0; i < selectedLotteryNumbers.length; i++) {
             results.push({
-                lotteryNumber: lotteryNumbers[i],
+                lotteryNumber: selectedLotteryNumbers[i],
                 parkingSpot: shuffledSpots[i],
             });
         }
 
-        return results;
+        return {
+            results,
+            note,
+            totalLotteryNumbers: lotteryNumbers.length,
+            selectedCount: selectedLotteryNumbers.length,
+        };
     }
 
     // 開始抽籤
     startLottery() {
         try {
-            // 獲取設定值
-            const separateZones =
-                document.getElementById('separate-zones').checked;
-
-            const results = {
-                timestamp: new Date(),
-                separateZones: separateZones,
-                zoneResults: [],
-            };
-
-            if (separateZones) {
-                // 分區抽籤
-
-                // A區抽籤
-                const aZoneRange = this.getCombinedRanges('a');
-                if (aZoneRange) {
-                    const aLotteryNumbers = this.parseNumberRange(aZoneRange);
-                    const aAvailable = this.getAvailableParkingSpots(
-                        'A',
-                        this.aZoneExcludes
-                    );
-
-                    if (aLotteryNumbers.length > 0 && aAvailable.length > 0) {
-                        const aResults = this.conductLottery(
-                            aLotteryNumbers,
-                            aAvailable
-                        );
-                        results.zoneResults.push({
-                            zone: 'A',
-                            range: aZoneRange,
-                            exclude: this.aZoneExcludes.join(',') || '無',
-                            available: aAvailable.length,
-                            participants: aLotteryNumbers.length,
-                            results: aResults,
-                        });
-                    }
-                }
-
-                // B區抽籤
-                const bZoneRange = this.getCombinedRanges('b');
-                if (bZoneRange) {
-                    const bLotteryNumbers = this.parseNumberRange(bZoneRange);
-                    const bAvailable = this.getAvailableParkingSpots(
-                        'B',
-                        this.bZoneExcludes
-                    );
-
-                    if (bLotteryNumbers.length > 0 && bAvailable.length > 0) {
-                        const bResults = this.conductLottery(
-                            bLotteryNumbers,
-                            bAvailable
-                        );
-                        results.zoneResults.push({
-                            zone: 'B',
-                            range: bZoneRange,
-                            exclude: this.bZoneExcludes.join(',') || '無',
-                            available: bAvailable.length,
-                            participants: bLotteryNumbers.length,
-                            results: bResults,
-                        });
-                    }
-                }
-            } else {
-                // 不分區抽籤
-                const unifiedRange = this.getCombinedRanges('unified');
-
-                if (!unifiedRange) {
-                    alert('請先加入發放抽籤號碼範圍');
-                    return;
-                }
-
-                const allLotteryNumbers = this.parseNumberRange(unifiedRange);
-                const allAvailable = this.getAvailableParkingSpots(
-                    'all',
-                    this.unifiedExcludes
-                );
-
-                if (allLotteryNumbers.length > 0 && allAvailable.length > 0) {
-                    const allResults = this.conductLottery(
-                        allLotteryNumbers,
-                        allAvailable
-                    );
-                    results.zoneResults.push({
-                        zone: '整體',
-                        range: unifiedRange,
-                        exclude: this.unifiedExcludes.join(',') || '無',
-                        available: allAvailable.length,
-                        participants: allLotteryNumbers.length,
-                        results: allResults,
-                    });
-                } else {
-                    alert('沒有有效的抽籤號碼或可用停車位');
-                    return;
-                }
-            }
-
-            if (results.zoneResults.length === 0) {
-                alert('沒有有效的抽籤結果，請檢查設定');
+            // 檢查是否有抽籤號碼
+            if (this.lotteryNumbers.length === 0) {
+                alert('請先加入抽籤號碼');
                 return;
             }
 
+            // 檢查是否有車位號碼
+            if (this.parkingNumbers.length === 0) {
+                alert('請先加入車位號碼');
+                return;
+            }
+
+            const availableSpots = this.getAvailableParkingSpots();
+
+            if (availableSpots.length === 0) {
+                alert('沒有可用的停車位（所有車位號碼都被排除了）');
+                return;
+            }
+
+            // 執行抽籤
+            const lotteryResult = this.conductLottery(
+                this.lotteryNumbers,
+                availableSpots
+            );
+
             // 儲存到歷史記錄
+            const results = {
+                timestamp: new Date(),
+                lotteryNumbers: [...this.lotteryNumbers],
+                parkingRange: this.parkingNumbers.join(','),
+                exclude: this.excludeNumbers.join(',') || '無',
+                available: availableSpots.length,
+                participants: lotteryResult.totalLotteryNumbers,
+                selectedCount: lotteryResult.selectedCount,
+                results: lotteryResult.results,
+                note: lotteryResult.note,
+            };
+
             this.saveToHistory(results);
 
             // 顯示結果
             this.displayResults(results);
         } catch (error) {
             alert('抽籤錯誤：' + error.message);
+            console.error('抽籤錯誤：', error);
         }
     }
 
     // 顯示抽籤結果
     displayResults(results) {
         const container = document.getElementById('results-container');
-        const resultIndex = 0; // 當前結果的索引，用於複製功能
+
+        // 檢查結果數量，如果超過50筆，採用分頁顯示
+        const resultsPerPage = 50;
+        const totalResults = results.results.length;
+        const totalPages = Math.ceil(totalResults / resultsPerPage);
+        let currentPage = 1;
+
+        const createResultsTable = (pageResults, page) => {
+            const startIndex = (page - 1) * resultsPerPage;
+            const endIndex = Math.min(
+                startIndex + resultsPerPage,
+                totalResults
+            );
+
+            return `
+                <div class="results-table-container">
+                    <div class="table-header">
+                        <h4>
+                            抽籤結果 ${
+                                totalPages > 1
+                                    ? `(第 ${page} 頁，共 ${totalPages} 頁) `
+                                    : ''
+                            }
+                            (顯示 ${
+                                startIndex + 1
+                            }-${endIndex} 筆，共 ${totalResults} 筆)
+                            <div class="copy-buttons">
+                                <button class="copy-csv-btn" onclick="lottery.copyCSV(0)" title="複製完整 CSV 資料">
+                                    複製 CSV
+                                </button>
+                                <button class="copy-numbers-btn" onclick="lottery.copyParkingNumbers(0)" title="複製所有停車位號碼">
+                                    複製停車位號碼
+                                </button>
+                            </div>
+                        </h4>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="lottery-table">
+                            <thead>
+                                <tr>
+                                    <th>序號</th>
+                                    <th>抽籤號碼</th>
+                                    <th>分配停車位</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${pageResults
+                                    .map(
+                                        (pair, index) => `
+                                    <tr>
+                                        <td class="serial-number">${
+                                            startIndex + index + 1
+                                        }</td>
+                                        <td class="lottery-number">${
+                                            pair.lotteryNumber
+                                        }</td>
+                                        <td class="parking-number">${
+                                            pair.parkingSpot
+                                        }</td>
+                                    </tr>
+                                `
+                                    )
+                                    .join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${
+                        totalPages > 1
+                            ? `
+                        <div class="pagination">
+                            <button class="pagination-btn" ${
+                                page === 1 ? 'disabled' : ''
+                            } 
+                                    onclick="lottery.showResultPage(${
+                                        page - 1
+                                    })" title="上一頁">
+                                ‹ 上一頁
+                            </button>
+                            <div class="pagination-info">
+                                <span>第 ${page} 頁，共 ${totalPages} 頁</span>
+                                <span class="total-info">總共 ${totalResults} 筆結果</span>
+                            </div>
+                            <button class="pagination-btn" ${
+                                page === totalPages ? 'disabled' : ''
+                            } 
+                                    onclick="lottery.showResultPage(${
+                                        page + 1
+                                    })" title="下一頁">
+                                下一頁 ›
+                            </button>
+                        </div>
+                    `
+                            : ''
+                    }
+                </div>
+            `;
+        };
 
         const resultHtml = `
             <div class="round-result">
                 <h3>最新抽籤結果</h3>
                 <div class="round-info">
-                    <strong>抽籤時間：</strong>${results.timestamp.toLocaleString(
-                        'zh-TW'
-                    )}<br>
-                    <strong>抽籤方式：</strong>${
-                        results.separateZones ? '分區抽籤' : '合併抽籤'
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">抽籤時間：</span>
+                            <span class="info-value">${results.timestamp.toLocaleString(
+                                'zh-TW'
+                            )}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">抽籤號碼：</span>
+                            <span class="info-value">${
+                                results.lotteryNumbers.length > 20
+                                    ? `${results.lotteryNumbers
+                                          .slice(0, 20)
+                                          .join(', ')} ... (共${
+                                          results.lotteryNumbers.length
+                                      }個)`
+                                    : results.lotteryNumbers.join(', ')
+                            }</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">車位範圍：</span>
+                            <span class="info-value">${
+                                results.parkingRange.length > 50
+                                    ? `${results.parkingRange.substring(
+                                          0,
+                                          50
+                                      )}...`
+                                    : results.parkingRange
+                            }</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">排除停車位：</span>
+                            <span class="info-value">${
+                                results.exclude.length > 30
+                                    ? `${results.exclude.substring(0, 30)}...`
+                                    : results.exclude
+                            }</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">可用車位：</span>
+                            <span class="info-value">${
+                                results.available
+                            }個</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">參與抽籤：</span>
+                            <span class="info-value">${
+                                results.selectedCount
+                            }個</span>
+                        </div>
+                    </div>
+                    ${
+                        results.note
+                            ? `<div class="note-section">
+                        <strong class="note">${results.note}</strong>
+                    </div>`
+                            : ''
                     }
                 </div>
                 <div class="zone-results">
-                    ${results.zoneResults
-                        .map(
-                            (zoneResult, zoneIndex) => `
-                        <div class="zone-result">
-                            <h4>
-                                ${zoneResult.zone}區結果 (參與：${
-                                zoneResult.participants ||
-                                zoneResult.results.length
-                            }，可用位數：${zoneResult.available})
-                                <div class="copy-buttons">
-                                    <button class="copy-csv-btn" onclick="window.lotterySystem.copyCSV(${resultIndex}, ${zoneIndex})">
-                                        複製 CSV
-                                    </button>
-                                    <button class="copy-numbers-btn" onclick="window.lotterySystem.copyParkingNumbers(${resultIndex}, ${zoneIndex})">
-                                        複製停車位號碼
-                                    </button>
-                                </div>
-                            </h4>
-                            <div class="round-info">
-                                <strong>發放抽籤號碼範圍：</strong>${
-                                    zoneResult.range
-                                }<br>
-                                <strong>排除停車位：</strong>${
-                                    zoneResult.exclude || '無'
-                                }
-                            </div>
-                            <table class="lottery-table">
-                                <thead>
-                                    <tr>
-                                        <th>抽籤號碼</th>
-                                        <th>分配停車位</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${zoneResult.results
-                                        .map(
-                                            (pair, index) => `
-                                        <tr>
-                                            <td>${pair.lotteryNumber}</td>
-                                            <td class="parking-number">${pair.parkingSpot}</td>
-                                        </tr>
-                                    `
-                                        )
-                                        .join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    `
-                        )
-                        .join('')}
+                    <div class="zone-result" id="current-results-display">
+                        ${createResultsTable(
+                            results.results.slice(0, resultsPerPage),
+                            currentPage
+                        )}
+                    </div>
                 </div>
             </div>
         `;
 
         container.innerHTML = resultHtml;
+
+        // 儲存當前結果用於分頁
+        this.currentDisplayResults = results.results;
+        this.currentResultsPerPage = resultsPerPage;
+    }
+
+    // 顯示指定頁面的結果
+    showResultPage(page) {
+        if (!this.currentDisplayResults || page < 1) return;
+
+        const totalPages = Math.ceil(
+            this.currentDisplayResults.length / this.currentResultsPerPage
+        );
+        if (page > totalPages) return;
+
+        const startIndex = (page - 1) * this.currentResultsPerPage;
+        const endIndex = Math.min(
+            startIndex + this.currentResultsPerPage,
+            this.currentDisplayResults.length
+        );
+        const pageResults = this.currentDisplayResults.slice(
+            startIndex,
+            endIndex
+        );
+
+        const container = document.getElementById('current-results-display');
+        if (!container) return;
+
+        const createResultsTable = (pageResults, page) => {
+            const startIndex = (page - 1) * this.currentResultsPerPage;
+            const endIndex = Math.min(
+                startIndex + this.currentResultsPerPage,
+                this.currentDisplayResults.length
+            );
+            const totalResults = this.currentDisplayResults.length;
+            const totalPages = Math.ceil(
+                totalResults / this.currentResultsPerPage
+            );
+
+            return `
+                <div class="results-table-container">
+                    <div class="table-header">
+                        <h4>
+                            抽籤結果 ${
+                                totalPages > 1
+                                    ? `(第 ${page} 頁，共 ${totalPages} 頁) `
+                                    : ''
+                            }
+                            (顯示 ${
+                                startIndex + 1
+                            }-${endIndex} 筆，共 ${totalResults} 筆)
+                            <div class="copy-buttons">
+                                <button class="copy-csv-btn" onclick="lottery.copyCSV(0)" title="複製完整 CSV 資料">
+                                    複製 CSV
+                                </button>
+                                <button class="copy-numbers-btn" onclick="lottery.copyParkingNumbers(0)" title="複製所有停車位號碼">
+                                    複製停車位號碼
+                                </button>
+                            </div>
+                        </h4>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="lottery-table">
+                            <thead>
+                                <tr>
+                                    <th>序號</th>
+                                    <th>抽籤號碼</th>
+                                    <th>分配停車位</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${pageResults
+                                    .map(
+                                        (pair, index) => `
+                                    <tr>
+                                        <td class="serial-number">${
+                                            startIndex + index + 1
+                                        }</td>
+                                        <td class="lottery-number">${
+                                            pair.lotteryNumber
+                                        }</td>
+                                        <td class="parking-number">${
+                                            pair.parkingSpot
+                                        }</td>
+                                    </tr>
+                                `
+                                    )
+                                    .join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${
+                        totalPages > 1
+                            ? `
+                        <div class="pagination">
+                            <button class="pagination-btn" ${
+                                page === 1 ? 'disabled' : ''
+                            } 
+                                    onclick="lottery.showResultPage(${
+                                        page - 1
+                                    })" title="上一頁">
+                                ‹ 上一頁
+                            </button>
+                            <div class="pagination-info">
+                                <span>第 ${page} 頁，共 ${totalPages} 頁</span>
+                                <span class="total-info">總共 ${totalResults} 筆結果</span>
+                            </div>
+                            <button class="pagination-btn" ${
+                                page === totalPages ? 'disabled' : ''
+                            } 
+                                    onclick="lottery.showResultPage(${
+                                        page + 1
+                                    })" title="下一頁">
+                                下一頁 ›
+                            </button>
+                        </div>
+                    `
+                            : ''
+                    }
+                </div>
+            `;
+        };
+
+        container.innerHTML = createResultsTable(pageResults, page);
     }
 
     // 顯示歷史記錄詳細結果
@@ -673,55 +801,56 @@ class ParkingLotterySystem {
                 <h3>歷史記錄詳細結果</h3>
                 <div class="round-info">
                     <div><strong>時間：</strong>${timestamp}</div>
-                    <div><strong>模式：</strong>${
-                        record.separateZones ? '分區抽籤' : '整體抽籤'
+                    <div><strong>抽籤號碼：</strong>${record.lotteryNumbers.join(
+                        ', '
+                    )}</div>
+                    <div><strong>車位範圍：</strong>${record.parkingRange}</div>
+                    <div><strong>排除停車位：</strong>${
+                        record.exclude || '無'
                     }</div>
-                    <div><strong>總計：</strong>${record.zoneResults.reduce(
-                        (sum, zone) => sum + zone.results.length,
-                        0
-                    )} 個停車位</div>
+                    <div><strong>可用車位：</strong>${record.available}個</div>
+                    <div><strong>抽籤號碼總數：</strong>${
+                        record.participants
+                    }個</div>
+                    <div><strong>實際參與抽籤：</strong>${
+                        record.selectedCount
+                    }個</div>
+                    ${
+                        record.note
+                            ? `<div><strong class="note">${record.note}</strong></div>`
+                            : ''
+                    }
                 </div>
                 <div class="zone-results">
-        `;
-
-        // 為每個區域建立結果表格
-        record.zoneResults.forEach((zoneResult, zoneIndex) => {
-            detailsHtml += `
-                <div class="zone-result">
-                    <h4>
-                        ${zoneResult.zone}區抽籤結果 (${
-                zoneResult.results.length
-            } 個停車位)
-                        <div class="copy-buttons">
-                            <button class="copy-csv-btn" onclick="lottery.copyCSV(${historyIndex}, ${zoneIndex})">複製 CSV</button>
-                            <button class="copy-numbers-btn" onclick="lottery.copyParkingNumbers(${historyIndex}, ${zoneIndex})">複製停車位號碼</button>
-                        </div>
-                    </h4>
-                    <table class="lottery-table">
-                        <thead>
-                            <tr>
-                                <th>抽籤號碼</th>
-                                <th>停車位</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${zoneResult.results
-                                .map(
-                                    (result, index) => `
+                    <div class="zone-result">
+                        <h4>
+                            抽籤結果 (${record.results.length} 個停車位)
+                            <div class="copy-buttons">
+                                <button class="copy-csv-btn" onclick="lottery.copyCSV(${historyIndex})">複製 CSV</button>
+                                <button class="copy-numbers-btn" onclick="lottery.copyParkingNumbers(${historyIndex})">複製停車位號碼</button>
+                            </div>
+                        </h4>
+                        <table class="lottery-table">
+                            <thead>
+                                <tr>
+                                    <th>抽籤號碼</th>
+                                    <th>停車位</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${record.results
+                                    .map(
+                                        (result, index) => `
                                 <tr>
                                     <td>${result.lotteryNumber}</td>
                                     <td class="parking-number">${result.parkingSpot}</td>
                                 </tr>
                             `
-                                )
-                                .join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        });
-
-        detailsHtml += `
+                                    )
+                                    .join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         `;
@@ -735,31 +864,32 @@ class ParkingLotterySystem {
     }
 
     // 複製 CSV 內容到剪貼簿
-    async copyCSV(historyIndex, zoneIndex) {
-        // 從歷史記錄中找到對應的結果（因為最新結果已經儲存在索引0）
-        const roundData = this.history[historyIndex];
-        if (!roundData || !roundData.zoneResults[zoneIndex]) {
+    async copyCSV(historyIndex) {
+        const record = this.history[historyIndex];
+        if (!record) {
             alert('找不到對應的抽籤資料');
             return;
         }
 
-        const zoneResult = roundData.zoneResults[zoneIndex];
-        const timestamp = new Date(roundData.timestamp);
+        const timestamp = new Date(record.timestamp);
 
         // 建立 CSV 內容
-        let csvContent = `抽籤結果 - ${zoneResult.zone}區\n`;
+        let csvContent = `抽籤結果\n`;
         csvContent += `抽籤時間,${timestamp.toLocaleString('zh-TW')}\n`;
-        csvContent += `抽籤方式,${
-            roundData.separateZones ? '分區抽籤' : '合併抽籤'
-        }\n`;
-        csvContent += `發放範圍,${zoneResult.range}\n`;
-        csvContent += `排除停車位,${zoneResult.exclude || '無'}\n`;
-        csvContent += `可用位數,${zoneResult.available}\n`;
+        csvContent += `抽籤號碼,${record.lotteryNumbers.join(',')}\n`;
+        csvContent += `車位範圍,${record.parkingRange}\n`;
+        csvContent += `排除停車位,${record.exclude || '無'}\n`;
+        csvContent += `可用位數,${record.available}\n`;
+        csvContent += `抽籤號碼總數,${record.participants}\n`;
+        csvContent += `實際參與抽籤,${record.selectedCount}\n`;
+        if (record.note) {
+            csvContent += `備註,${record.note}\n`;
+        }
         csvContent += '\n';
         csvContent += '抽籤號碼,分配停車位\n';
 
         // 新增每筆抽籤結果
-        zoneResult.results.forEach((pair) => {
+        record.results.forEach((pair) => {
             csvContent += `${pair.lotteryNumber},${pair.parkingSpot}\n`;
         });
 
@@ -774,18 +904,15 @@ class ParkingLotterySystem {
     }
 
     // 複製停車位號碼到剪貼簿
-    async copyParkingNumbers(historyIndex, zoneIndex) {
-        // 從歷史記錄中找到對應的結果
-        const roundData = this.history[historyIndex];
-        if (!roundData || !roundData.zoneResults[zoneIndex]) {
+    async copyParkingNumbers(historyIndex) {
+        const record = this.history[historyIndex];
+        if (!record) {
             alert('找不到對應的抽籤資料');
             return;
         }
 
-        const zoneResult = roundData.zoneResults[zoneIndex];
-
         // 建立停車位號碼字串，用逗號分隔
-        const parkingNumbers = zoneResult.results
+        const parkingNumbers = record.results
             .map((pair) => pair.parkingSpot)
             .join(',');
 
@@ -824,10 +951,6 @@ class ParkingLotterySystem {
 
         const historyHtml = this.history
             .map((record, index) => {
-                const totalResults = record.zoneResults.reduce(
-                    (sum, zone) => sum + zone.results.length,
-                    0
-                );
                 const timestamp = record.timestamp.toLocaleString
                     ? record.timestamp.toLocaleString('zh-TW')
                     : new Date(record.timestamp).toLocaleString('zh-TW');
@@ -835,14 +958,14 @@ class ParkingLotterySystem {
                 <div class="history-item" onclick="lottery.showHistoryDetails(${index})" style="cursor: pointer;">
                     <h4>${timestamp}</h4>
                     <div class="history-summary">
-                        ${record.separateZones ? '分區抽籤' : '整體抽籤'} | 
-                        共 ${totalResults} 個停車位 | 
-                        ${record.zoneResults
-                            .map(
-                                (zone) =>
-                                    `${zone.zone}區: ${zone.results.length}個`
-                            )
-                            .join(', ')}
+                        共 ${record.results.length} 個停車位 | 
+                        抽籤號碼：${record.participants}個 | 
+                        可用車位：${record.available}個
+                        ${
+                            record.selectedCount !== record.participants
+                                ? ` | 實際參與：${record.selectedCount}個`
+                                : ''
+                        }
                     </div>
                     <div class="history-hint">點擊查看詳細結果</div>
                 </div>
@@ -859,34 +982,31 @@ class ParkingLotterySystem {
             document.getElementById('results-container').innerHTML =
                 '<div class="no-results">尚未進行抽籤</div>';
 
-            // 清空範圍陣列和顯示
-            this.aZoneRanges = [];
-            this.bZoneRanges = [];
-            this.unifiedRanges = [];
-            this.updateRangeDisplay('a');
-            this.updateRangeDisplay('b');
-            this.updateRangeDisplay('unified');
-            this.updateRangeCount('a');
-            this.updateRangeCount('b');
-            this.updateRangeCount('unified');
+            // 清空抽籤號碼和車位範圍
+            this.lotteryNumbers = [];
+            this.parkingRanges = [];
+            this.updateLotteryNumbersDisplay();
+            this.updateParkingRangesDisplay();
 
             // 重置排除停車位為預設值
-            this.aZoneExcludes = [191, 192, 193, 194, 195];
-            this.bZoneExcludes = [
-                313, 314, 315, 316, 317, 318, 319, 320, 321, 322,
+            this.excludes = [
+                191,
+                192,
+                193,
+                194,
+                195, // 身障車格
+                313,
+                314,
+                315,
+                316,
+                317,
+                318,
+                319,
+                320,
+                321,
+                322, // 充電機車位
             ];
-            this.unifiedExcludes = [
-                191, 192, 193, 194, 195, 313, 314, 315, 316, 317, 318, 319, 320,
-                321, 322,
-            ];
-            this.updateExcludeDisplay('a');
-            this.updateExcludeDisplay('b');
-            this.updateExcludeDisplay('unified');
-
-            document.getElementById('separate-zones').checked = true;
-
-            // 重新設定顯示狀態
-            this.toggleZoneSettings(true);
+            this.updateExcludeDisplay();
         }
     }
 
@@ -900,35 +1020,9 @@ class ParkingLotterySystem {
     }
 
     // 新增範圍
-    addRange(zone) {
-        let prefix, prefixEnd;
-        const startId =
-            zone === 'a'
-                ? 'a-zone-start'
-                : zone === 'b'
-                ? 'b-zone-start'
-                : 'unified-start';
-        const endId =
-            zone === 'a'
-                ? 'a-zone-end'
-                : zone === 'b'
-                ? 'b-zone-end'
-                : 'unified-end';
-
-        if (zone === 'a') {
-            prefix = 'A';
-            prefixEnd = 'A';
-        } else if (zone === 'b') {
-            prefix = 'B';
-            prefixEnd = 'B';
-        } else {
-            // unified 使用純數字，不需要前綴
-            prefix = '';
-            prefixEnd = '';
-        }
-
-        const startInput = document.getElementById(startId);
-        const endInput = document.getElementById(endId);
+    addRange() {
+        const startInput = document.getElementById('lottery-start');
+        const endInput = document.getElementById('lottery-end');
 
         const startValue = startInput.value.trim();
         const endValue = endInput.value.trim();
@@ -961,32 +1055,14 @@ class ParkingLotterySystem {
 
         // 建立範圍字串
         let rangeStr;
-        if (zone === 'unified') {
-            // 不分區使用純數字
-            if (startNum === endNum) {
-                rangeStr = `${startNum}`; // 單個號碼
-            } else {
-                rangeStr = `${startNum}-${endNum}`; // 範圍
-            }
+        if (startNum === endNum) {
+            rangeStr = `${startNum}`; // 單個號碼
         } else {
-            // 分區使用前綴+補零
-            const startPadded = startValue.padStart(3, '0');
-            const endPadded = endValue.padStart(3, '0');
-            if (startNum === endNum) {
-                rangeStr = `${prefix}${startPadded}`; // 單個號碼
-            } else {
-                rangeStr = `${prefix}${startPadded}-${prefix}${endPadded}`; // 範圍
-            }
+            rangeStr = `${startNum}-${endNum}`; // 範圍
         }
 
         // 檢查是否重複
-        const targetArray =
-            zone === 'a'
-                ? this.aZoneRanges
-                : zone === 'b'
-                ? this.bZoneRanges
-                : this.unifiedRanges;
-        if (targetArray.includes(rangeStr)) {
+        if (this.lotteryRanges.includes(rangeStr)) {
             alert('此範圍已存在');
             return;
         }
@@ -996,7 +1072,7 @@ class ParkingLotterySystem {
         const existingNumbers = new Set();
 
         // 獲取所有現有號碼
-        targetArray.forEach((range) => {
+        this.lotteryRanges.forEach((range) => {
             const numbers = this.parseNumberRange(range);
             numbers.forEach((num) => existingNumbers.add(num));
         });
@@ -1018,12 +1094,12 @@ class ParkingLotterySystem {
             return;
         }
 
-        // 加入到對應的範圍陣列
-        targetArray.push(rangeStr);
+        // 加入到範圍陣列
+        this.lotteryRanges.push(rangeStr);
 
         // 更新顯示
-        this.updateRangeDisplay(zone);
-        this.updateRangeCount(zone);
+        this.updateRangeDisplay();
+        this.updateRangeCount();
 
         // 清空輸入框
         startInput.value = '';
@@ -1124,117 +1200,6 @@ class ParkingLotterySystem {
         this.updateLotterySummary();
     }
 
-    // 更新車位摘要
-    updateSpotsSummary(zone) {
-        let totalSpots, excludedCount, availableSpots;
-        const excludeArray =
-            zone === 'a'
-                ? this.aZoneExcludes
-                : zone === 'b'
-                ? this.bZoneExcludes
-                : this.unifiedExcludes;
-
-        if (zone === 'a') {
-            totalSpots = 210; // A區: 1-210
-            excludedCount = this.aZoneExcludes.length;
-            availableSpots = totalSpots - excludedCount;
-        } else if (zone === 'b') {
-            totalSpots = 112; // B區: 211-322 (112個)
-            excludedCount = this.bZoneExcludes.length;
-            availableSpots = totalSpots - excludedCount;
-        } else {
-            totalSpots = 322; // 整體: 1-322
-            excludedCount = this.unifiedExcludes.length;
-            availableSpots = totalSpots - excludedCount;
-        }
-
-        const summaryId =
-            zone === 'a'
-                ? 'a-zone-spots-summary'
-                : zone === 'b'
-                ? 'b-zone-spots-summary'
-                : 'unified-spots-summary';
-        const summaryElement = document.getElementById(summaryId);
-
-        if (summaryElement) {
-            if (zone === 'unified') {
-                // 計算A區和B區的可用車位
-                const aAvailable = 210 - this.aZoneExcludes.length;
-                const bAvailable = 112 - this.bZoneExcludes.length;
-
-                summaryElement.innerHTML = `
-                    <div class="total-spots">總車位數：${totalSpots}個</div>
-                    <div class="excluded-spots">排除車位：${excludedCount}個</div>
-                    <div class="available-spots-count">可用車位：${availableSpots}個</div>
-                    <div class="zone-breakdown">
-                        <span class="zone-detail">A區可用：${aAvailable}個</span>
-                        <span class="zone-detail">B區可用：${bAvailable}個</span>
-                    </div>
-                `;
-            } else {
-                summaryElement.innerHTML = `
-                    <div class="total-spots">總車位數：${totalSpots}個</div>
-                    <div class="excluded-spots">排除車位：${excludedCount}個</div>
-                    <div class="available-spots-count">可用車位：${availableSpots}個</div>
-                `;
-            }
-        }
-    }
-
-    // 更新抽籤摘要
-    updateLotterySummary() {
-        const separateZones = document.getElementById('separate-zones').checked;
-        const totalLotteryElement = document.getElementById(
-            'total-lottery-numbers'
-        );
-        const totalAvailableElement = document.getElementById(
-            'total-available-spots'
-        );
-        const summaryBreakdown = document.getElementById('summary-breakdown');
-
-        let totalLotteryNumbers = 0;
-        let totalAvailableSpots = 0;
-
-        if (separateZones) {
-            // 分區模式
-            const aLotteryCount = this.aZoneRanges.reduce((sum, range) => {
-                return sum + this.parseNumberRange(range).length;
-            }, 0);
-            const bLotteryCount = this.bZoneRanges.reduce((sum, range) => {
-                return sum + this.parseNumberRange(range).length;
-            }, 0);
-
-            const aAvailableSpots = 210 - this.aZoneExcludes.length;
-            const bAvailableSpots = 112 - this.bZoneExcludes.length;
-
-            totalLotteryNumbers = aLotteryCount + bLotteryCount;
-            totalAvailableSpots = aAvailableSpots + bAvailableSpots;
-
-            // 更新分區細節
-            document.getElementById('a-zone-lottery-count').textContent =
-                aLotteryCount;
-            document.getElementById('a-zone-available-count').textContent =
-                aAvailableSpots;
-            document.getElementById('b-zone-lottery-count').textContent =
-                bLotteryCount;
-            document.getElementById('b-zone-available-count').textContent =
-                bAvailableSpots;
-
-            summaryBreakdown.style.display = 'block';
-        } else {
-            // 整體模式
-            totalLotteryNumbers = this.unifiedRanges.reduce((sum, range) => {
-                return sum + this.parseNumberRange(range).length;
-            }, 0);
-            totalAvailableSpots = 322 - this.unifiedExcludes.length;
-
-            summaryBreakdown.style.display = 'none';
-        }
-
-        totalLotteryElement.textContent = totalLotteryNumbers;
-        totalAvailableElement.textContent = totalAvailableSpots;
-    }
-
     // 獲取合併後的範圍字串
     getCombinedRanges(zone) {
         const targetArray =
@@ -1247,14 +1212,8 @@ class ParkingLotterySystem {
     }
 
     // 新增排除停車位
-    addExclude(zone) {
-        const inputId =
-            zone === 'a'
-                ? 'a-zone-exclude-input'
-                : zone === 'b'
-                ? 'b-zone-exclude-input'
-                : 'unified-exclude-input';
-        const input = document.getElementById(inputId);
+    addExclude() {
+        const input = document.getElementById('exclude-input');
         const value = input.value.trim();
 
         if (!value) {
@@ -1269,26 +1228,18 @@ class ParkingLotterySystem {
             return;
         }
 
-        // 獲取目標陣列
-        const targetArray =
-            zone === 'a'
-                ? this.aZoneExcludes
-                : zone === 'b'
-                ? this.bZoneExcludes
-                : this.unifiedExcludes;
-
         // 加入新的排除號碼（避免重複）
         newExcludes.forEach((num) => {
-            if (!targetArray.includes(num)) {
-                targetArray.push(num);
+            if (!this.excludes.includes(num)) {
+                this.excludes.push(num);
             }
         });
 
         // 排序
-        targetArray.sort((a, b) => a - b);
+        this.excludes.sort((a, b) => a - b);
 
         // 更新顯示
-        this.updateExcludeDisplay(zone);
+        this.updateExcludeDisplay();
 
         // 清空輸入框
         input.value = '';
@@ -1296,79 +1247,60 @@ class ParkingLotterySystem {
     }
 
     // 移除特定排除停車位
-    removeExclude(zone, parkingNumber) {
-        const targetArray =
-            zone === 'a'
-                ? this.aZoneExcludes
-                : zone === 'b'
-                ? this.bZoneExcludes
-                : this.unifiedExcludes;
-        const index = targetArray.indexOf(parkingNumber);
+    removeExclude(parkingNumber) {
+        const index = this.excludes.indexOf(parkingNumber);
         if (index > -1) {
-            targetArray.splice(index, 1);
-            this.updateExcludeDisplay(zone);
+            this.excludes.splice(index, 1);
+            this.updateExcludeDisplay();
         }
     }
 
     // 清空排除停車位
-    clearExclude(zone) {
+    clearExclude() {
         if (confirm('確定要清空所有排除的停車位嗎？')) {
-            if (zone === 'a') {
-                this.aZoneExcludes = [];
-            } else if (zone === 'b') {
-                this.bZoneExcludes = [];
-            } else {
-                this.unifiedExcludes = [];
-            }
-            this.updateExcludeDisplay(zone);
+            this.excludes = [];
+            this.updateExcludeDisplay();
         }
     }
 
     // 重置為預設排除停車位
-    resetExclude(zone) {
+    resetExclude() {
         if (confirm('確定要重置為預設設定嗎？')) {
-            if (zone === 'a') {
-                this.aZoneExcludes = [191, 192, 193, 194, 195];
-            } else if (zone === 'b') {
-                this.bZoneExcludes = [
-                    313, 314, 315, 316, 317, 318, 319, 320, 321, 322,
-                ];
-            } else if (zone === 'unified') {
-                this.unifiedExcludes = [
-                    191, 192, 193, 194, 195, 313, 314, 315, 316, 317, 318, 319,
-                    320, 321, 322,
-                ];
-            }
-            this.updateExcludeDisplay(zone);
+            this.excludes = [
+                191,
+                192,
+                193,
+                194,
+                195, // 身障車格
+                313,
+                314,
+                315,
+                316,
+                317,
+                318,
+                319,
+                320,
+                321,
+                322, // 充電機車位
+            ];
+            this.updateExcludeDisplay();
         }
     }
 
     // 更新排除停車位顯示
-    updateExcludeDisplay(zone) {
-        const displayId =
-            zone === 'a'
-                ? 'a-zone-exclude-display'
-                : zone === 'b'
-                ? 'b-zone-exclude-display'
-                : 'unified-exclude-display';
-        const displayElement = document.getElementById(displayId);
-        const targetArray =
-            zone === 'a'
-                ? this.aZoneExcludes
-                : zone === 'b'
-                ? this.bZoneExcludes
-                : this.unifiedExcludes;
+    updateExcludeDisplay() {
+        const displayElement = document.getElementById('exclude-display');
 
-        if (targetArray.length === 0) {
+        if (this.excludes.length === 0) {
             displayElement.innerHTML =
                 '<span class="no-excludes">目前無排除的停車位</span>';
         } else {
-            const tagsHtml = targetArray
+            const tagsHtml = this.excludes
                 .map(
                     (num) =>
                         `<span class="exclude-tag">
                     ${num}
-                    <button class="remove-exclude" onclick="window.lotterySystem.removeExclude('${zone}', ${num})" title="移除此停車位">×</button>
+                    <button class="remove-exclude" onclick="window.lotterySystem.removeExclude(${num})" title="移除此停車位">×</button>
                 </span>`
                 )
                 .join('');
@@ -1376,8 +1308,542 @@ class ParkingLotterySystem {
         }
 
         // 更新車位摘要和抽籤摘要
-        this.updateSpotsSummary(zone);
+        this.updateSpotsSummary();
         this.updateLotterySummary();
+    }
+
+    // === 抽籤號碼管理 ===
+
+    // 新增抽籤號碼範圍
+    addLotteryRange() {
+        const startInput = document.getElementById('lottery-range-start');
+        const endInput = document.getElementById('lottery-range-end');
+
+        const startNum = parseInt(startInput.value);
+        const endNum = parseInt(endInput.value);
+
+        if (!this.validateNumberRange(startNum, endNum)) {
+            return;
+        }
+
+        // 產生號碼陣列
+        const newNumbers = [];
+        for (let i = startNum; i <= endNum; i++) {
+            newNumbers.push(i);
+        }
+
+        if (
+            !this.addNumbersToArray(this.lotteryNumbers, newNumbers, '抽籤號碼')
+        ) {
+            return;
+        }
+
+        // 更新顯示
+        this.updateLotteryNumbersDisplay();
+        this.updateLotterySummary();
+
+        // 清空輸入框
+        startInput.value = '';
+        endInput.value = '';
+        startInput.focus();
+    }
+
+    // 新增單一抽籤號碼
+    addLotterySingle() {
+        const input = document.getElementById('lottery-single-number');
+        const num = parseInt(input.value);
+
+        if (!this.validateSingleNumber(num)) {
+            return;
+        }
+
+        if (!this.addNumbersToArray(this.lotteryNumbers, [num], '抽籤號碼')) {
+            return;
+        }
+
+        // 更新顯示
+        this.updateLotteryNumbersDisplay();
+        this.updateLotterySummary();
+
+        // 清空輸入框
+        input.value = '';
+        input.focus();
+    }
+
+    // 清空所有抽籤號碼
+    clearLotteryNumbers() {
+        if (confirm('確定要清空所有抽籤號碼嗎？')) {
+            this.lotteryNumbers = [];
+            this.updateLotteryNumbersDisplay();
+            this.updateLotterySummary();
+        }
+    }
+
+    // 移除特定抽籤號碼
+    removeLotteryNumber(number) {
+        const index = this.lotteryNumbers.indexOf(number);
+        if (index > -1) {
+            this.lotteryNumbers.splice(index, 1);
+            this.updateLotteryNumbersDisplay();
+            this.updateLotterySummary();
+        }
+    }
+
+    // 更新抽籤號碼顯示
+    updateLotteryNumbersDisplay() {
+        const displayElement = document.getElementById(
+            'lottery-numbers-display'
+        );
+        const countElement = document.getElementById('lottery-count');
+
+        if (this.lotteryNumbers.length === 0) {
+            displayElement.innerHTML =
+                '<span class="no-numbers">尚未加入任何號碼</span>';
+        } else {
+            const tagsHtml = this.lotteryNumbers
+                .map(
+                    (number) => `<span class="number-tag">
+                    ${number}
+                    <button class="remove-btn" onclick="lottery.removeLotteryNumber(${number})" title="移除此號碼">×</button>
+                </span>`
+                )
+                .join('');
+            displayElement.innerHTML = tagsHtml;
+        }
+
+        // 更新統計
+        countElement.textContent = `抽籤號碼總數：${this.lotteryNumbers.length}`;
+    }
+
+    // === 車位號碼管理 ===
+
+    // 新增車位號碼範圍
+    addParkingRange() {
+        const startInput = document.getElementById('parking-range-start');
+        const endInput = document.getElementById('parking-range-end');
+
+        const startNum = parseInt(startInput.value);
+        const endNum = parseInt(endInput.value);
+
+        if (!this.validateNumberRange(startNum, endNum)) {
+            return;
+        }
+
+        // 產生號碼陣列
+        const newNumbers = [];
+        for (let i = startNum; i <= endNum; i++) {
+            newNumbers.push(i);
+        }
+
+        if (
+            !this.addNumbersToArray(this.parkingNumbers, newNumbers, '車位號碼')
+        ) {
+            return;
+        }
+
+        // 更新顯示
+        this.updateParkingNumbersDisplay();
+        this.updateParkingSummary();
+        this.updateLotterySummary();
+
+        // 清空輸入框
+        startInput.value = '';
+        endInput.value = '';
+        startInput.focus();
+    }
+
+    // 新增單一車位號碼
+    addParkingSingle() {
+        const input = document.getElementById('parking-single-number');
+        const num = parseInt(input.value);
+
+        if (!this.validateSingleNumber(num)) {
+            return;
+        }
+
+        if (!this.addNumbersToArray(this.parkingNumbers, [num], '車位號碼')) {
+            return;
+        }
+
+        // 更新顯示
+        this.updateParkingNumbersDisplay();
+        this.updateParkingSummary();
+        this.updateLotterySummary();
+
+        // 清空輸入框
+        input.value = '';
+        input.focus();
+    }
+
+    // 清空所有車位號碼
+    clearParkingNumbers() {
+        if (confirm('確定要清空所有車位號碼嗎？')) {
+            this.parkingNumbers = [];
+            this.updateParkingNumbersDisplay();
+            this.updateParkingSummary();
+            this.updateLotterySummary();
+        }
+    }
+
+    // 移除特定車位號碼
+    removeParkingNumber(number) {
+        const index = this.parkingNumbers.indexOf(number);
+        if (index > -1) {
+            this.parkingNumbers.splice(index, 1);
+            this.updateParkingNumbersDisplay();
+            this.updateParkingSummary();
+            this.updateLotterySummary();
+        }
+    }
+
+    // 更新車位號碼顯示
+    updateParkingNumbersDisplay() {
+        const displayElement = document.getElementById(
+            'parking-numbers-display'
+        );
+        const countElement = document.getElementById('parking-count');
+
+        if (this.parkingNumbers.length === 0) {
+            displayElement.innerHTML =
+                '<span class="no-numbers">尚未加入任何號碼</span>';
+        } else {
+            const tagsHtml = this.parkingNumbers
+                .map((number) => {
+                    const isExcluded = this.excludeNumbers.includes(number);
+                    const tagClass = isExcluded
+                        ? 'number-tag excluded-parking'
+                        : 'number-tag';
+                    const title = isExcluded
+                        ? '此車位已被排除，無法參與抽籤'
+                        : '點擊移除此號碼';
+
+                    return `<span class="${tagClass}" ${
+                        isExcluded ? 'data-excluded="true"' : ''
+                    }>
+                    ${number}
+                    ${
+                        isExcluded
+                            ? '<span class="excluded-indicator" title="已排除">🚫</span>'
+                            : ''
+                    }
+                    <button class="remove-btn" onclick="lottery.removeParkingNumber(${number})" title="${title}">×</button>
+                </span>`;
+                })
+                .join('');
+            displayElement.innerHTML = tagsHtml;
+        }
+
+        // 更新統計
+        countElement.textContent = `車位號碼總數：${this.parkingNumbers.length}`;
+    }
+
+    // === 排除車位號碼管理 ===
+
+    // 新增排除車位號碼範圍
+    addExcludeRange() {
+        const startInput = document.getElementById('exclude-range-start');
+        const endInput = document.getElementById('exclude-range-end');
+
+        const startNum = parseInt(startInput.value);
+        const endNum = parseInt(endInput.value);
+
+        if (!this.validateNumberRange(startNum, endNum)) {
+            return;
+        }
+
+        // 產生號碼陣列
+        const newNumbers = [];
+        for (let i = startNum; i <= endNum; i++) {
+            newNumbers.push(i);
+        }
+
+        if (
+            !this.addNumbersToArray(this.excludeNumbers, newNumbers, '排除車位')
+        ) {
+            return;
+        }
+
+        // 更新顯示
+        this.updateExcludeNumbersDisplay();
+        this.updateParkingSummary();
+        this.updateLotterySummary();
+
+        // 清空輸入框
+        startInput.value = '';
+        endInput.value = '';
+        startInput.focus();
+    }
+
+    // 新增單一排除車位號碼
+    addExcludeSingle() {
+        const input = document.getElementById('exclude-single-number');
+        const num = parseInt(input.value);
+
+        if (!this.validateSingleNumber(num)) {
+            return;
+        }
+
+        if (!this.addNumbersToArray(this.excludeNumbers, [num], '排除車位')) {
+            return;
+        }
+
+        // 更新顯示
+        this.updateExcludeNumbersDisplay();
+        this.updateParkingSummary();
+        this.updateLotterySummary();
+
+        // 清空輸入框
+        input.value = '';
+        input.focus();
+    }
+
+    // 重置排除車位為預設值
+    resetExcludeNumbers() {
+        if (confirm('確定要重置為預設的排除車位嗎？')) {
+            this.excludeNumbers = ParkingConfig.defaultExcludedSpots.slice();
+            this.updateExcludeNumbersDisplay();
+            this.updateParkingSummary();
+            this.updateLotterySummary();
+        }
+    }
+
+    // 移除特定排除車位號碼
+    removeExcludeNumber(number) {
+        const index = this.excludeNumbers.indexOf(number);
+        if (index > -1) {
+            this.excludeNumbers.splice(index, 1);
+            this.updateExcludeNumbersDisplay();
+            this.updateParkingSummary();
+            this.updateLotterySummary();
+        }
+    }
+
+    // 更新排除車位號碼顯示
+    updateExcludeNumbersDisplay() {
+        const displayElement = document.getElementById(
+            'exclude-numbers-display'
+        );
+        const countElement = document.getElementById('exclude-count');
+
+        if (this.excludeNumbers.length === 0) {
+            displayElement.innerHTML =
+                '<span class="no-numbers">目前無排除車位</span>';
+        } else {
+            const tagsHtml = this.excludeNumbers
+                .map(
+                    (number) => `<span class="exclude-tag">
+                    ${number}
+                    <button class="remove-btn" onclick="lottery.removeExcludeNumber(${number})" title="移除此排除">×</button>
+                </span>`
+                )
+                .join('');
+            displayElement.innerHTML = tagsHtml;
+        }
+
+        // 更新統計
+        countElement.textContent = `排除車位總數：${this.excludeNumbers.length}`;
+    }
+
+    // === 輔助方法 ===
+
+    // 驗證數字範圍
+    validateNumberRange(startNum, endNum) {
+        if (isNaN(startNum) || isNaN(endNum)) {
+            alert('請輸入有效的數字');
+            return false;
+        }
+
+        if (startNum < 1 || endNum < 1 || startNum > 999 || endNum > 999) {
+            alert('請輸入1-999之間的數字');
+            return false;
+        }
+
+        if (startNum > endNum) {
+            alert('起始數字不能大於結束數字');
+            return false;
+        }
+
+        return true;
+    }
+
+    // 驗證單一數字
+    validateSingleNumber(num) {
+        if (isNaN(num)) {
+            alert('請輸入有效的數字');
+            return false;
+        }
+
+        if (num < 1 || num > 999) {
+            alert('請輸入1-999之間的數字');
+            return false;
+        }
+
+        return true;
+    }
+
+    // 加入號碼到陣列（通用方法）
+    addNumbersToArray(targetArray, newNumbers, type) {
+        // 檢查重複
+        const existingNumbers = new Set(targetArray);
+        const duplicates = newNumbers.filter((num) => existingNumbers.has(num));
+
+        if (duplicates.length > 0) {
+            alert(`${type} ${duplicates.join(', ')} 已存在`);
+            return false;
+        }
+
+        // 加入到陣列
+        targetArray.push(...newNumbers);
+
+        // 排序
+        targetArray.sort((a, b) => a - b);
+
+        return true;
+    }
+
+    // 更新車位統計摘要
+    updateParkingSummary() {
+        const totalElement = document.getElementById('total-parking-spots');
+        const excludedElement = document.getElementById(
+            'excluded-parking-spots'
+        );
+        const availableElement = document.getElementById(
+            'available-parking-spots'
+        );
+
+        const totalSpots = this.parkingNumbers.length;
+        const excludedSpots = this.excludeNumbers.length;
+        const availableSpots = Math.max(
+            0,
+            totalSpots -
+                this.excludeNumbers.filter((num) =>
+                    this.parkingNumbers.includes(num)
+                ).length
+        );
+
+        totalElement.textContent = totalSpots;
+        excludedElement.textContent = excludedSpots;
+        availableElement.textContent = availableSpots;
+    }
+
+    // 更新抽籤摘要
+    updateLotterySummary() {
+        const totalLotteryElement = document.getElementById(
+            'total-lottery-numbers'
+        );
+        const totalAvailableSpotsElement = document.getElementById(
+            'total-available-spots'
+        );
+        const summaryNoteElement = document.getElementById('summary-note');
+
+        if (totalLotteryElement) {
+            totalLotteryElement.textContent = this.lotteryNumbers.length;
+        }
+
+        if (totalAvailableSpotsElement) {
+            // 計算實際可用車位（車位號碼中未被排除的）
+            const availableSpots = this.parkingNumbers.filter(
+                (num) => !this.excludeNumbers.includes(num)
+            );
+            totalAvailableSpotsElement.textContent = availableSpots.length;
+        }
+
+        // 顯示/隱藏注意事項
+        if (summaryNoteElement) {
+            const availableSpots = this.parkingNumbers.filter(
+                (num) => !this.excludeNumbers.includes(num)
+            );
+            if (
+                this.lotteryNumbers.length > availableSpots.length &&
+                availableSpots.length > 0
+            ) {
+                summaryNoteElement.style.display = 'block';
+            } else {
+                summaryNoteElement.style.display = 'none';
+            }
+        }
+    }
+
+    // 重置所有設定
+    resetLottery() {
+        if (confirm('確定要重置所有抽籤設定嗎？這將清空所有號碼設定。')) {
+            // 清空結果顯示
+            document.getElementById('results-container').innerHTML =
+                '<div class="no-results">尚未進行抽籤</div>';
+
+            // 重置所有陣列
+            this.lotteryNumbers = [];
+            this.parkingNumbers = [];
+
+            // 重置排除號碼為預設值
+            this.excludeNumbers = ParkingConfig.defaultExcludedSpots.slice();
+
+            // 更新所有顯示
+            this.updateAllDisplays();
+        }
+    }
+
+    // 處理歷史記錄的向後相容性
+    migrateHistoryData() {
+        let needsMigration = false;
+        this.history.forEach((record, index) => {
+            // 如果記錄有舊的格式（有zoneResults而不是新的格式）
+            if (record.zoneResults && !record.lotteryNumbers) {
+                needsMigration = true;
+                // 將舊格式轉換為新格式
+                let allLotteryNumbers = [];
+                let allParkingRanges = [];
+                let allResults = [];
+
+                record.zoneResults.forEach((zoneResult) => {
+                    // 解析抽籤號碼
+                    const lotteryNums = this.parseNumberRange(
+                        zoneResult.range || ''
+                    );
+                    allLotteryNumbers.push(...lotteryNums);
+
+                    // 處理車位範圍（舊系統中車位是固定的）
+                    if (zoneResult.zone === 'A') {
+                        allParkingRanges.push('1-210');
+                    } else if (zoneResult.zone === 'B') {
+                        allParkingRanges.push('211-322');
+                    } else if (zoneResult.zone === '整體') {
+                        allParkingRanges.push('1-322');
+                    }
+
+                    // 合併結果
+                    allResults.push(...zoneResult.results);
+                });
+
+                // 更新記錄為新格式
+                this.history[index] = {
+                    timestamp: record.timestamp,
+                    lotteryNumbers: [...new Set(allLotteryNumbers)].sort(
+                        (a, b) => a - b
+                    ), // 去重並排序
+                    parkingRange: [...new Set(allParkingRanges)].join(','), // 去重
+                    exclude: record.zoneResults[0]?.exclude || '無',
+                    available: record.zoneResults.reduce(
+                        (sum, zone) => sum + zone.available,
+                        0
+                    ),
+                    participants: allLotteryNumbers.length,
+                    selectedCount: allResults.length,
+                    results: allResults,
+                    note:
+                        record.zoneResults.length > 1
+                            ? '此記錄為舊系統分區抽籤的合併結果'
+                            : '',
+                };
+            }
+        });
+
+        if (needsMigration) {
+            localStorage.setItem(
+                'parkingLotteryHistory',
+                JSON.stringify(this.history)
+            );
+        }
     }
 }
 
