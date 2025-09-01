@@ -13,24 +13,39 @@ class NumberManager {
         this.countElementId = countElementId;
         this.numberType = numberType;
         this.numbers = [...initialNumbers];
+        this.getText = (key) => key; // 預設翻譯函式
+        this.alert = alert; // 預設 alert 函式
         this.updateDisplay();
+        return this;
+    }
+
+    // 設定翻譯函式
+    setTranslationFunction(getText) {
+        this.getText = getText;
+        this.updateDisplay();
+        return this;
+    }
+
+    // 設定 Alert 函式
+    setAlertFunction(alertFunction) {
+        this.alert = alertFunction;
         return this;
     }
 
     // 驗證數字範圍
     validateNumberRange(startNum, endNum) {
         if (isNaN(startNum) || isNaN(endNum)) {
-            alert('請輸入有效的數字');
+            this.alert(this.getText('enter-valid-number'));
             return false;
         }
 
         if (startNum < 1 || endNum < 1 || startNum > 999 || endNum > 999) {
-            alert('請輸入1-999之間的數字');
+            this.alert(this.getText('enter-number-between-1-999'));
             return false;
         }
 
         if (startNum > endNum) {
-            alert('起始數字不能大於結束數字');
+            this.alert(this.getText('start-number-cannot-be-greater-than-end'));
             return false;
         }
 
@@ -40,12 +55,12 @@ class NumberManager {
     // 驗證單一數字
     validateSingleNumber(num) {
         if (isNaN(num)) {
-            alert('請輸入有效的數字');
+            this.alert(this.getText('enter-valid-number'));
             return false;
         }
 
         if (num < 1 || num > 999) {
-            alert('請輸入1-999之間的數字');
+            this.alert(this.getText('enter-number-between-1-999'));
             return false;
         }
 
@@ -96,7 +111,7 @@ class NumberManager {
     // 批次新增數字 - 支援逗號分隔格式
     addBatch(batchStr) {
         if (!batchStr || batchStr.trim() === '') {
-            alert('請輸入數字');
+            this.alert(this.getText('enter-numbers'));
             return false;
         }
 
@@ -186,8 +201,10 @@ class NumberManager {
         // 更新統計
         const countText =
             this.numberType === '排除車位'
-                ? `排除車位總數：${this.numbers.length}`
-                : `${this.numberType}總數：${this.numbers.length}`;
+                ? `${this.getText('exclude-count')}${this.numbers.length}`
+                : `${this.getText(this.numberType + '-count')}${
+                      this.numbers.length
+                  }`;
         countElement.textContent = countText;
     }
 
