@@ -48,18 +48,6 @@ class ParkingLotterySystem {
         document.getElementById('style-selector').value = this.currentTheme;
         document.getElementById('language-selector').value =
             this.currentLanguage;
-
-        // 設定翻譯函式給所有 NumberManager
-        this.lotteryManager.setTranslationFunction((key) => this.getText(key));
-        this.parkingManager.setTranslationFunction((key) => this.getText(key));
-        this.excludeManager.setTranslationFunction((key) => this.getText(key));
-
-        // 設定自定義 alert 函式給所有 NumberManager
-        const customAlert = (message) => alert(message);
-        this.lotteryManager.setAlertFunction(customAlert);
-        this.parkingManager.setAlertFunction(customAlert);
-        this.excludeManager.setAlertFunction(customAlert);
-
         this.updateLanguage();
 
         document
@@ -98,11 +86,6 @@ class ParkingLotterySystem {
                     this.translations[this.currentLanguage][key];
             }
         });
-
-        // 重新設定翻譯函式給所有 NumberManager
-        this.lotteryManager.setTranslationFunction((key) => this.getText(key));
-        this.parkingManager.setTranslationFunction((key) => this.getText(key));
-        this.excludeManager.setTranslationFunction((key) => this.getText(key));
 
         document.title = this.getText('title');
         document.documentElement.lang =
@@ -148,9 +131,6 @@ class ParkingLotterySystem {
             .getElementById('add-exclude-single')
             .addEventListener('click', () => this.addExcludeSingle());
         document
-            .getElementById('add-exclude-batch')
-            .addEventListener('click', () => this.addExcludeBatch());
-        document
             .getElementById('reset-exclude-numbers')
             .addEventListener('click', () => this.resetExcludeNumbers());
 
@@ -167,28 +147,6 @@ class ParkingLotterySystem {
         document
             .getElementById('clear-history')
             .addEventListener('click', () => this.clearHistory());
-
-        // 使用說明（Help）相關事件
-        const helpBtn = document.getElementById('help-button');
-        const helpModal = document.getElementById('help-modal');
-        const helpClose = document.getElementById('help-close');
-        const helpBackdrop = document.getElementById('help-backdrop');
-        const openHelp = () => {
-            if (!helpModal) return;
-            helpModal.setAttribute('aria-hidden', 'false');
-            // 設定焦點在關閉按鈕以利鍵盤操作
-            if (helpClose) helpClose.focus();
-        };
-        const closeHelp = () => {
-            if (!helpModal) return;
-            helpModal.setAttribute('aria-hidden', 'true');
-        };
-        if (helpBtn) helpBtn.addEventListener('click', openHelp);
-        if (helpClose) helpClose.addEventListener('click', closeHelp);
-        if (helpBackdrop) helpBackdrop.addEventListener('click', closeHelp);
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeHelp();
-        });
     }
 
     // 設定 Enter 鍵支援
@@ -217,10 +175,6 @@ class ParkingLotterySystem {
             {
                 ids: ['exclude-single-number'],
                 action: () => this.addExcludeSingle(),
-            },
-            {
-                ids: ['exclude-batch-input'],
-                action: () => this.addExcludeBatch(),
             },
         ];
 
@@ -375,19 +329,6 @@ class ParkingLotterySystem {
         }
     }
 
-    addExcludeBatch() {
-        const input = document.getElementById('exclude-batch-input');
-        const batchStr = input.value.trim();
-
-        if (this.excludeManager.addBatch(batchStr)) {
-            input.value = '';
-            input.focus();
-            this.updateParkingSummary();
-            this.updateLotterySummary();
-            this.parkingManager.updateDisplay();
-        }
-    }
-
     removeExcludeNumber(number) {
         if (this.excludeManager.removeNumber(number)) {
             this.updateParkingSummary();
@@ -456,17 +397,17 @@ class ParkingLotterySystem {
             const availableSpots = this.getAvailableParkingSpots();
 
             if (lotteryNumbers.length === 0) {
-                alert(this.getText('add-lottery-numbers-first'));
+                alert('請先加入抽籤號碼');
                 return;
             }
 
             if (this.parkingManager.getCount() === 0) {
-                alert(this.getText('add-parking-numbers-first'));
+                alert('請先加入車位號碼');
                 return;
             }
 
             if (availableSpots.length === 0) {
-                alert(this.getText('no-available-spots'));
+                alert('沒有可用的停車位（所有車位都被排除了）');
                 return;
             }
 
@@ -490,7 +431,7 @@ class ParkingLotterySystem {
             this.saveToHistory(results);
             this.displayResults(results);
         } catch (error) {
-            alert(this.getText('lottery-error') + ': ' + error.message);
+            alert('抽籤錯誤：' + error.message);
             console.error('抽籤錯誤：', error);
         }
     }
@@ -502,17 +443,14 @@ class ParkingLotterySystem {
         const totalResults = results.results.length;
         const totalPages = Math.ceil(totalResults / resultsPerPage);
 
-        const resultInfoHtml = Templates.createResultInfo(results, (key) =>
-            this.getText(key)
-        );
+        const resultInfoHtml = Templates.createResultInfo(results);
         const pageResults = results.results.slice(0, resultsPerPage);
         const tableHtml = Templates.createResultsTable(
             pageResults,
             1,
             totalResults,
             totalPages,
-            resultsPerPage,
-            (key) => this.getText(key)
+            resultsPerPage
         );
 
         container.innerHTML = `
@@ -552,8 +490,7 @@ class ParkingLotterySystem {
                 page,
                 this.currentDisplayResults.length,
                 totalPages,
-                this.currentResultsPerPage,
-                (key) => this.getText(key)
+                this.currentResultsPerPage
             );
         }
     }
@@ -566,8 +503,7 @@ class ParkingLotterySystem {
         const resultsContainer = document.getElementById('results-container');
         resultsContainer.innerHTML = Templates.createHistoryDetails(
             record,
-            historyIndex,
-            (key) => this.getText(key)
+            historyIndex
         );
         resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -581,40 +517,24 @@ class ParkingLotterySystem {
         }
 
         const timestamp = new Date(record.timestamp);
-        const localeCode = this.getText('locale-code');
-        let csvContent = `${this.getText('lottery-results')}\n${this.getText(
-            'lottery-time'
-        )},${timestamp.toLocaleString(localeCode)}\n`;
-        csvContent += `${this.getText(
-            'lottery-numbers'
-        )},${record.lotteryNumbers.join(',')}\n`;
-        csvContent += `${this.getText('parking-range')},${
-            record.parkingRange
-        }\n`;
-        csvContent += `${this.getText('excluded-parking')},${
-            record.exclude || this.getText('none')
-        }\n`;
-        csvContent += `${this.getText('available-spots')},${
-            record.available
-        }\n`;
-        csvContent += `${this.getText('total-lottery-numbers')},${
-            record.participants
-        }\n`;
-        csvContent += `${this.getText('actual-participants')},${
-            record.selectedCount
-        }\n`;
-        if (record.note)
-            csvContent += `${this.getText('note')},${record.note}\n`;
-        csvContent += `\n${this.getText('lottery-number')},${this.getText(
-            'assigned-parking'
+        let csvContent = `抽籤結果\n抽籤時間,${timestamp.toLocaleString(
+            'zh-TW'
         )}\n`;
+        csvContent += `抽籤號碼,${record.lotteryNumbers.join(',')}\n`;
+        csvContent += `車位範圍,${record.parkingRange}\n`;
+        csvContent += `排除停車位,${record.exclude || '無'}\n`;
+        csvContent += `可用位數,${record.available}\n`;
+        csvContent += `抽籤號碼總數,${record.participants}\n`;
+        csvContent += `實際參與抽籤,${record.selectedCount}\n`;
+        if (record.note) csvContent += `備註,${record.note}\n`;
+        csvContent += '\n抽籤號碼,分配停車位\n';
         record.results.forEach((pair) => {
             csvContent += `${pair.lotteryNumber},${pair.parkingSpot}\n`;
         });
 
         try {
             await navigator.clipboard.writeText(csvContent);
-            alert(this.getText('csv-copied-message'));
+            alert('CSV 內容已複製到剪貼簿！');
         } catch (err) {
             console.error('複製失敗：', err);
             alert('複製失敗，請手動複製');
@@ -625,7 +545,7 @@ class ParkingLotterySystem {
     async copyParkingNumbers(historyIndex) {
         const record = this.history[historyIndex];
         if (!record) {
-            alert(this.getText('record-not-found'));
+            alert('找不到對應的抽籤資料');
             return;
         }
 
@@ -635,10 +555,10 @@ class ParkingLotterySystem {
 
         try {
             await navigator.clipboard.writeText(parkingNumbers);
-            alert(this.getText('parking-numbers-copied-message'));
+            alert('停車位號碼已複製到剪貼簿！\n可直接貼到「排除停車位」欄位');
         } catch (err) {
             console.error('複製失敗：', err);
-            alert(this.getText('copy-failed-message'));
+            alert('複製失敗，請手動複製');
         }
     }
 
