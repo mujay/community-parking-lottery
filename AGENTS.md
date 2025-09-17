@@ -9,6 +9,7 @@
 - 本機啟動（靜態伺服器）：
   - `python3 -m http.server 8080` → 開啟 http://localhost:8080
   - 或 `npx http-server -c-1`（停用快取）→ http://127.0.0.1:8080
+- 線上 DEMO： https://mujay.github.io/community-parking-lottery/
 - 煙霧測試：開啟應用、切換主題/語言、加入區間/單號、執行抽籤、檢查歷史與剪貼簿功能。
 
 ## 程式風格與命名規範
