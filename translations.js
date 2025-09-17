@@ -59,6 +59,7 @@ const Translations = {
         'style-github': 'GitHub 風格',
         'language-label': '🌍 語言：',
         chinese: '中文',
+        help: '❓ 使用說明',
 
         // 統計標籤
         'total-parking': '總車位：',
@@ -89,6 +90,17 @@ const Translations = {
         'next-page': '下一頁',
         total: '總共',
         results: '筆結果',
+
+        // 使用說明
+        'help-title': '使用說明',
+        'help-close': '關閉',
+        'help-intro': '本工具用於將抽籤號碼隨機配對可用停車位。',
+        'help-step-1': '加入抽籤號碼（單號或範圍）。',
+        'help-step-2': '加入車位號碼（可多段範圍）。',
+        'help-step-3': '視需要設定排除車位（單號、範圍或批次）。',
+        'help-step-4': '點擊「開始抽籤」，查看結果與摘要。',
+        'help-step-5': '可分頁瀏覽、複製 CSV 或停車位清單；歷史自動保存。',
+        'help-note': '提示：當抽籤號碼多於可用車位時，系統會隨機選擇等量號碼參與抽籤。',
 
         // 結果資訊
         'latest-results': '最新抽籤結果',
@@ -184,6 +196,7 @@ const Translations = {
         'style-github': 'GitHub Style',
         'language-label': '🌍 Language:',
         chinese: '中文',
+        help: '❓ Help',
 
         // 統計標籤
         'total-parking': 'Total:',
@@ -216,6 +229,20 @@ const Translations = {
         'next-page': 'Next',
         total: 'Total ',
         results: ' results',
+
+        // 使用說明
+        'help-title': 'How to Use',
+        'help-close': 'Close',
+        'help-intro':
+            'Pair lottery numbers with available parking spots at random.',
+        'help-step-1': 'Add lottery numbers (single or range).',
+        'help-step-2': 'Add parking numbers (multiple ranges allowed).',
+        'help-step-3': 'Optionally set exclusions (single, range, or batch).',
+        'help-step-4': 'Click “Start Lottery” to see results and summary.',
+        'help-step-5':
+            'Browse by pages, copy CSV or parking numbers; history is saved.',
+        'help-note':
+            'Note: If entries exceed available spots, only a random subset participates.',
 
         // 結果資訊
         'latest-results': 'Latest Lottery Results',

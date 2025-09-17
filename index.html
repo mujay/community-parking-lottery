@@ -24,6 +24,9 @@
                         <option value="en">English</option>
                     </select>
                 </div>
+                <div class="help-switch">
+                    <button id="help-button" class="btn-help" title="使用說明" data-i18n="help">❓ 使用說明</button>
+                </div>
             </div>
             <h1 data-i18n="title">🚗 停車位抽籤系統</h1>
         </header>
@@ -261,6 +264,28 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- 使用說明 Modal -->
+    <div id="help-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="help-title" aria-hidden="true">
+        <div class="modal-backdrop" id="help-backdrop"></div>
+        <div class="modal-dialog" role="document">
+            <div class="modal-header">
+                <h3 id="help-title" data-i18n="help-title">使用說明</h3>
+                <button id="help-close" class="modal-close" aria-label="Close" data-i18n="help-close">關閉</button>
+            </div>
+            <div class="modal-body">
+                <p data-i18n="help-intro">本工具用於將抽籤號碼隨機配對可用停車位。</p>
+                <ol class="help-steps">
+                    <li data-i18n="help-step-1">加入抽籤號碼（單號或範圍）。</li>
+                    <li data-i18n="help-step-2">加入車位號碼（可多段範圍）。</li>
+                    <li data-i18n="help-step-3">視需要設定排除車位（單號、範圍或批次）。</li>
+                    <li data-i18n="help-step-4">點擊「開始抽籤」，查看結果與摘要。</li>
+                    <li data-i18n="help-step-5">可分頁瀏覽、複製 CSV 或停車位清單；歷史自動保存。</li>
+                </ol>
+                <p class="help-note" data-i18n="help-note">提示：當抽籤號碼多於可用車位時，系統會隨機選擇等量號碼參與抽籤。</p>
+            </div>
+        </div>
     </div>
 
     <script src="config.js"></script>

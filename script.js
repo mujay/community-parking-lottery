@@ -167,6 +167,28 @@ class ParkingLotterySystem {
         document
             .getElementById('clear-history')
             .addEventListener('click', () => this.clearHistory());
+
+        // 使用說明（Help）相關事件
+        const helpBtn = document.getElementById('help-button');
+        const helpModal = document.getElementById('help-modal');
+        const helpClose = document.getElementById('help-close');
+        const helpBackdrop = document.getElementById('help-backdrop');
+        const openHelp = () => {
+            if (!helpModal) return;
+            helpModal.setAttribute('aria-hidden', 'false');
+            // 設定焦點在關閉按鈕以利鍵盤操作
+            if (helpClose) helpClose.focus();
+        };
+        const closeHelp = () => {
+            if (!helpModal) return;
+            helpModal.setAttribute('aria-hidden', 'true');
+        };
+        if (helpBtn) helpBtn.addEventListener('click', openHelp);
+        if (helpClose) helpClose.addEventListener('click', closeHelp);
+        if (helpBackdrop) helpBackdrop.addEventListener('click', closeHelp);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeHelp();
+        });
     }
 
     // 設定 Enter 鍵支援
